@@ -294,13 +294,21 @@ function rng(seed){return function(){seed|=0;seed=seed+0x6D2B79F5|0;var t=Math.i
 /* ============================== Données de référence ============================== */
 var ORGS=[
   {id:'p42',name:'Spartoo',sub:'Vente de chaussures en ligne',exo:'Exercice 1 : réception d\'une commande et bon de préparation',open:true},
-  {id:'exo2',name:'Exercice 2 (à venir)',sub:'',exo:'',open:false}
+  {id:'techpro',name:'TechPro Distribution',sub:'Matériel informatique — vente B2B',exo:'Exercice 2 : catalogue, fournisseurs et clients B2B',open:true}
 ];
 var COLORS={NR:['Noir','#1f2124'],BL:['Blanc','#f4f4f1'],GR:['Gris','#8b9098'],MA:['Bleu marine','#22406e'],RG:['Rouge','#c23a2f'],BE:['Beige','#d9c4a1'],VE:['Vert','#33704f'],RS:['Rose','#e8a9ba'],MR:['Marron','#6d4b30']};
-var ZONES={Running:'A',Lifestyle:'B',Skate:'C',Confort:'D',Bottes:'E'};
+var ZONES={Running:'A',Lifestyle:'B',Skate:'C',Confort:'D',Bottes:'E',Ordinateurs:'F',Ecrans:'G',Peripheriques:'H',Reseau:'I',Impression:'J'};
+/* Vocabulaire par univers (org) : mots utilisés dans toute l'interface pour l'unité et la variante d'un article */
+var VOCAB={
+  p42:{unit:'paire',unitPl:'paires',sizeLabel:'Taille',sizeShort:'T.',configWord:'taille',icon:'shoe',mailDomain:'spartoo.example'},
+  techpro:{unit:'unité',unitPl:'unités',sizeLabel:'Édition',sizeShort:'Éd. ',configWord:'édition',icon:'device',mailDomain:'techpro-distribution.example'}
+};
+function activeOrg(){return (S&&S.org)||'p42'}
+function V(){return VOCAB[activeOrg()]||VOCAB.p42}
+function unitWord(n){var v=V();return (n>1||n===0)?v.unitPl:v.unit}
 var SHIP={COL:['Colissimo Domicile',4.9],CHR:['Chronopost Express',9.9],REL:['Point Relais',3.9]};
 
-var SUPPLIERS=[
+var SUPPLIERS_P42=[
  {id:'F001',brand:'Nike',name:'Nike France, B2B',adr:'Zone d\'activités Paris Nord 2',cp:'95700',ville:'Roissy-en-France',contact:'Julien Marchetti',tel:'01 48 17 20 10',email:'commandes@nike-pro.example',delai:3,franco:1500,pay:'45 jours fin de mois',moq:24},
  {id:'F002',brand:'adidas',name:'adidas France, B2B',adr:'4 rue de l\'Industrie',cp:'67870',ville:'Landersheim',contact:'Sabine Kessler',tel:'03 88 59 40 22',email:'partenaires@adidas-pro.example',delai:4,franco:1200,pay:'60 jours net',moq:20},
  {id:'F003',brand:'Puma',name:'Puma France, B2B',adr:'18 avenue du Rhin',cp:'67000',ville:'Strasbourg',contact:'Marc Oberlé',tel:'03 88 22 71 05',email:'b2b@puma-pro.example',delai:4,franco:1000,pay:'45 jours net',moq:20},
@@ -312,9 +320,25 @@ var SUPPLIERS=[
  {id:'F009',brand:'Skechers',name:'Skechers France, B2B',adr:'Parc d\'affaires du Val d\'Europe',cp:'77700',ville:'Chessy',contact:'Thomas Vidal',tel:'01 60 43 88 02',email:'commercial@skechers-pro.example',delai:3,franco:600,pay:'30 jours net',moq:12},
  {id:'F010',brand:'Timberland',name:'Timberland Europe, B2B',adr:'11 rue de la Plaine',cp:'69680',ville:'Chassieu',contact:'Aurélie Gomez',tel:'04 72 79 30 66',email:'retailers@timberland-pro.example',delai:6,franco:1000,pay:'60 jours fin de mois',moq:24}
 ];
-var SUP_BY_ID={};SUPPLIERS.forEach(function(s){SUP_BY_ID[s.id]=s});
 
-var MODELS_RAW=[
+var SUPPLIERS_TECHPRO=[
+ {id:'T001',brand:'Dell',name:'Dell France, B2B',adr:'1 rond-point Benjamin Franklin',cp:'34000',ville:'Montpellier',contact:'Nicolas Fabre',tel:'04 67 50 12 30',email:'commandes@dell-pro.example',delai:5,franco:3000,pay:'45 jours fin de mois',moq:3},
+ {id:'T002',brand:'HP',name:'HP France, B2B',adr:'14 rue de la Verrerie',cp:'92130',ville:'Issy-les-Moulineaux',contact:'Claire Duthoit',tel:'01 57 32 40 10',email:'entreprises@hp-pro.example',delai:4,franco:2500,pay:'30 jours fin de mois',moq:3},
+ {id:'T003',brand:'Lenovo',name:'Lenovo France, B2B',adr:'25 quai Panhard et Levassor',cp:'75013',ville:'Paris',contact:'Julien Sartre',tel:'01 42 30 55 60',email:'pro@lenovo-b2b.example',delai:6,franco:3000,pay:'60 jours net',moq:4},
+ {id:'T004',brand:'Apple',name:'Apple France, B2B',adr:'7 place d\'Iéna',cp:'75116',ville:'Paris',contact:'Marion Castel',tel:'01 44 76 87 00',email:'entreprises@apple-pro.example',delai:7,franco:4000,pay:'30 jours net',moq:2},
+ {id:'T005',brand:'Microsoft',name:'Microsoft France, B2B',adr:'37 quai du Président Roosevelt',cp:'92130',ville:'Issy-les-Moulineaux',contact:'Bastien Lorrain',tel:'01 57 75 70 00',email:'entreprises@microsoft-pro.example',delai:5,franco:3500,pay:'45 jours fin de mois',moq:3},
+ {id:'T006',brand:'Logitech',name:'Logitech France, B2B',adr:'12 avenue Charles de Gaulle',cp:'92200',ville:'Neuilly-sur-Seine',contact:'Odile Mercadier',tel:'01 46 40 20 10',email:'pro@logitech-b2b.example',delai:4,franco:1500,pay:'30 jours fin de mois',moq:2},
+ {id:'T007',brand:'Samsung',name:'Samsung France, B2B',adr:'2 rue André Malraux',cp:'93400',ville:'Saint-Ouen',contact:'Farid Amrani',tel:'01 49 22 20 00',email:'entreprises@samsung-pro.example',delai:5,franco:2000,pay:'45 jours net',moq:3},
+ {id:'T008',brand:'Cisco',name:'Cisco France, B2B',adr:'11 rue Camille Desmoulins',cp:'92130',ville:'Issy-les-Moulineaux',contact:'Hélène Vasseur',tel:'01 58 04 60 00',email:'pro@cisco-b2b.example',delai:8,franco:2500,pay:'60 jours net',moq:2},
+ {id:'T009',brand:'Canon',name:'Canon France, B2B',adr:'17 quai du Président Paul Doumer',cp:'92400',ville:'Courbevoie',contact:'Samuel Drieux',tel:'01 41 30 15 15',email:'entreprises@canon-pro.example',delai:6,franco:2000,pay:'45 jours fin de mois',moq:2},
+ {id:'T010',brand:'Asus',name:'Asus France, B2B',adr:'5 allée de l\'Europe',cp:'92700',ville:'Colombes',contact:'Camille Rébillard',tel:'01 47 82 30 10',email:'pro@asus-b2b.example',delai:5,franco:2000,pay:'30 jours net',moq:3}
+];
+
+function buildSupById(list){var m={};list.forEach(function(s){m[s.id]=s});return m}
+var SUP_BY_ID_P42=buildSupById(SUPPLIERS_P42);
+var SUP_BY_ID_TECHPRO=buildSupById(SUPPLIERS_TECHPRO);
+
+var MODELS_RAW_P42=[
  ['NK-AM270','Nike','Air Max 270','Lifestyle',149.99,72,['NR','BL','GR'],[39,46],'F001','Semelle Air visible au talon, tige en mesh respirant. Un classique du quotidien.'],
  ['NK-PEG40','Nike','Pegasus 40','Running',129.99,62,['NR','BL','MA'],[39,46],'F001','Chaussure de running polyvalente, amorti réactif pour les sorties régulières.'],
  ['NK-AF1','Nike','Air Force 1 \'07','Lifestyle',119.99,58,['BL','NR'],[39,46],'F001','Basket en cuir à semelle épaisse, coupe basse.'],
@@ -337,10 +361,25 @@ var MODELS_RAW=[
  ['TB-6IN','Timberland','6-Inch Premium Boot','Bottes',219.99,105,['BE','NR','MR'],[39,46],'F010','Botte en nubuck imperméable, coutures étanches.']
 ];
 
-var MODELS=[],MM={},VARIANTS=[],VM={};
-(function build(){
-  var r=rng(20260927),aisle={};
-  MODELS_RAW.forEach(function(a,i){
+/* Catalogue B2B : la « taille » réutilise le même mécanisme technique que la pointure (voir buildCatalog)
+   mais représente ici un numéro d'édition (1 = entrée de gamme, 2 = standard, 3 = premium), le détail des
+   configurations (RAM, stockage...) étant donné dans la description du modèle. */
+var MODELS_RAW_TECHPRO=[
+ ['DEL-LAT5440','Dell','Latitude 5440','Ordinateurs',1290,600,['GR','NR'],[1,3],'T001','Ordinateur portable professionnel 14″, processeur Intel Core i5, écran Full HD. Éditions 1 à 3 : 8, 16 ou 32 Go de RAM.'],
+ ['HP-EB840','HP','EliteBook 840',"Ordinateurs",1390,650,['GR','NR'],[1,2],'T002','Ordinateur portable professionnel 14″, sécurité renforcée (lecteur d\'empreintes, webcam obturable). Éditions 1-2 : 16 ou 32 Go de RAM.'],
+ ['LEN-TPT14','Lenovo','ThinkPad T14','Ordinateurs',1250,580,['NR'],[1,3],'T003','Ordinateur portable robuste 14″, clavier rétroéclairé, autonomie longue durée. Éditions 1 à 3 : 8, 16 ou 32 Go de RAM.'],
+ ['APP-MBAM3','Apple','MacBook Air M3','Ordinateurs',1490,720,['GR','MA','BE'],[1,3],'T004','Ordinateur portable ultrafin 13″, puce Apple M3, sans ventilateur. Éditions 1 à 3 : 8, 16 ou 24 Go de mémoire unifiée.'],
+ ['MSF-SP10','Microsoft','Surface Pro 10','Ordinateurs',1590,740,['GR','NR'],[1,2],'T005','Tablette 2-en-1 13″ avec clavier détachable, sous Windows 11 Pro. Éditions 1-2 : 8 ou 16 Go de RAM.'],
+ ['LOG-RALLYB','Logitech','Rally Bar','Peripheriques',1990,950,['GR','BL'],[1,2],'T006','Barre de visioconférence tout-en-un, caméra motorisée. Édition 1 : salle moyenne, édition 2 : grande salle.'],
+ ['SAM-OG7','Samsung','Odyssey G7','Ecrans',549,260,['NR'],[1,2],'T007','Écran incurvé 240 Hz, dalle QHD. Édition 1 : 27″, édition 2 : 32″.'],
+ ['CIS-C1300','Cisco','Catalyst 1300','Reseau',890,410,['GR'],[1,2],'T008','Commutateur réseau administrable pour infrastructure de bureau. Édition 1 : 24 ports, édition 2 : 48 ports.'],
+ ['CAN-IRC3226','Canon','imageRUNNER C3226i','Impression',2490,1150,['GR'],[1,2],'T009','Imprimante multifonction couleur professionnelle, réseau, recto-verso automatique. Édition 1 : bac standard, édition 2 : bac grande capacité.'],
+ ['ASU-PA278','Asus','ProArt PA278CV','Ecrans',349,165,['NR'],[1,1],'T010','Écran 27″ calibré pour la retouche photo et le graphisme, connectique USB-C.']
+];
+
+function buildCatalog(rawModels,seed){
+  var MODELS=[],MM={},VARIANTS=[],VM={},r=rng(seed),aisle={};
+  rawModels.forEach(function(a){
     var z=ZONES[a[3]];aisle[z]=(aisle[z]||0)+1;
     var m={ref:a[0],brand:a[1],name:a[2],cat:a[3],price:a[4],cost:a[5],colors:a[6],s0:a[7][0],s1:a[7][1],sup:a[8],desc:a[9],min:4+Math.floor(r()*4),zone:z,aisle:aisle[z]};
     m.max=m.min+8; /* stock maximum (cible de réapprovisionnement) par référence : ne consomme pas de tirage aléatoire pour ne pas décaler les stocks déjà fixés */
@@ -357,15 +396,20 @@ var MODELS=[],MM={},VARIANTS=[],VM={};
       });
     });
   });
-  /* Stocks fixés pour le premier exercice */
-  VM['NK-AM270-NR-42'].qty0=8;
-  VM['AD-STS-BL-41'].qty0=1;
-  VM['PM-SUE-NR-40'].qty0=0;
-  VM['AD-STS-BL-44'].qty0=3;
-})();
+  return {MODELS:MODELS,MM:MM,VARIANTS:VARIANTS,VM:VM};
+}
 
-var CUSTOMERS=[],CM={};
-(function(){
+var CAT_P42=buildCatalog(MODELS_RAW_P42,20260927);
+/* Stocks fixés pour le premier exercice */
+CAT_P42.VM['NK-AM270-NR-42'].qty0=8;
+CAT_P42.VM['AD-STS-BL-41'].qty0=1;
+CAT_P42.VM['PM-SUE-NR-40'].qty0=0;
+CAT_P42.VM['AD-STS-BL-44'].qty0=3;
+
+var CAT_TECHPRO=buildCatalog(MODELS_RAW_TECHPRO,20261010);
+
+function genCustomersP42(){
+  var CUSTOMERS=[],CM={};
   var FN=['Camille','Lucas','Léa','Hugo','Emma','Nathan','Chloé','Louis','Manon','Théo','Inès','Enzo','Sarah','Maxime','Jade','Tom','Laura','Yanis','Clara','Antoine','Lina','Mathis','Zoé','Adam','Océane','Noah','Anaïs','Rayan','Élodie','Bastien','Margaux','Kylian'];
   var LN=['Martin','Bernard','Dubois','Thomas','Robert','Petit','Durand','Leroy','Moreau','Simon','Laurent','Lefebvre','Michel','Garcia','David','Bertrand','Roux','Vincent','Fournier','Morel','Girard','André','Mercier','Blanc','Guérin','Boyer','Garnier','Chevalier','François','Legrand','Faure','Perrot'];
   var ST=['rue des Lilas','avenue Jean Jaurès','rue Victor Hugo','boulevard Gambetta','rue de la République','allée des Tilleuls','rue Pasteur','chemin des Vignes','place du Marché','rue du Général Leclerc','impasse des Roses','rue Nationale'];
@@ -377,7 +421,56 @@ var CUSTOMERS=[],CM={};
     var cu={id:'C'+pad(i+1,4),prenom:fn,nom:ln,email:norm(fn).replace(/ /g,'')+'.'+norm(ln).replace(/ /g,'')+'@mail.example',tel:tel,adr:(1+Math.floor(r()*98))+' '+ST[(i*3)%ST.length],cp:c[1],ville:c[0],since:new Date(2021+Math.floor(r()*5),Math.floor(r()*12),1+Math.floor(r()*27)).getTime(),nb:1+Math.floor(r()*9)};
     CUSTOMERS.push(cu);CM[cu.id]=cu;
   });
-})();
+  return {CUSTOMERS:CUSTOMERS,CM:CM};
+}
+var CUST_P42=genCustomersP42();
+
+/* Clients B2B TechPro : des structures (cabinets, établissements, PME) qui équipent leurs bureaux.
+   « prenom » porte la raison sociale, « nom » son complément, pour que prenom+' '+nom forme un nom lisible. */
+function genCustomersTechpro(){
+  var RAW=[
+   ['Cabinet Lefort','Avocats','contact@cabinet-lefort.example','01 42 66 10 20','14 rue de la Paix','75002','Paris'],
+   ['Étude Notariale Berger','& Associés','accueil@etude-berger.example','03 88 40 22 15','6 place Broglie','67000','Strasbourg'],
+   ['Collège Jean Moulin','(Intendance)','intendance@college-jmoulin.example','04 78 20 33 40','2 rue des Écoles','69003','Lyon'],
+   ['Clinique Vétérinaire du Parc','','contact@cv-duparc.example','02 40 55 18 12','9 avenue du Parc','44000','Nantes'],
+   ['Agence Immobilière Delmas','','contact@immo-delmas.example','05 61 30 44 21','21 rue du Taur','31000','Toulouse'],
+   ['Menuiserie Garnier','SARL','contact@menuiserie-garnier.example','02 99 40 12 33','5 rue des Artisans','35000','Rennes'],
+   ['Cabinet Comptable Roussel','& Associés','contact@roussel-experts.example','03 80 41 22 10','11 rue de la Liberté','21000','Dijon'],
+   ['Lycée Professionnel Voltaire','(Intendance)','intendance@lp-voltaire.example','04 91 20 15 30','8 boulevard Voltaire','13008','Marseille'],
+   ['Auto-École Vasseur','','contact@ae-vasseur.example','03 20 55 40 12','17 rue de la Gare','59000','Lille'],
+   ['Pharmacie du Centre','Dr Nguyen','contact@pharma-centre.example','04 76 30 12 44','3 place Grenette','38000','Grenoble'],
+   ['Cabinet d\'Architectes Moreau','','contact@archi-moreau.example','02 35 40 22 18','12 quai de la Bourse','76000','Rouen'],
+   ['Garage Bertin','SAS','contact@garage-bertin.example','04 67 20 33 15','40 route de Nîmes','34000','Montpellier'],
+   ['Boulangerie-Pâtisserie Aubert','(Siège)','siege@aubert-bp.example','04 93 40 11 22','2 rue Masséna','06000','Nice'],
+   ['Centre de Formation Delacroix','','contact@cf-delacroix.example','02 47 30 44 10','19 rue Nationale','37000','Tours'],
+   ['Étude d\'Huissiers Fabre','& Cie','contact@huissiers-fabre.example','03 87 30 15 20','6 place Saint-Louis','57000','Metz']
+  ];
+  var CUSTOMERS=[],CM={},r=rng(4242);
+  RAW.forEach(function(a,i){
+    var cu={id:'B'+pad(i+1,4),prenom:a[0],nom:a[1],email:a[2],tel:a[3],adr:a[4],cp:a[5],ville:a[6],since:new Date(2020+Math.floor(r()*6),Math.floor(r()*12),1+Math.floor(r()*27)).getTime(),nb:1+Math.floor(r()*6)};
+    CUSTOMERS.push(cu);CM[cu.id]=cu;
+  });
+  return {CUSTOMERS:CUSTOMERS,CM:CM};
+}
+var CUST_TECHPRO=genCustomersTechpro();
+
+var UNIVERSE_REGISTRY={
+  p42:{cat:CAT_P42, sup:SUPPLIERS_P42, supById:SUP_BY_ID_P42, cust:CUST_P42.CUSTOMERS, custById:CUST_P42.CM},
+  techpro:{cat:CAT_TECHPRO, sup:SUPPLIERS_TECHPRO, supById:SUP_BY_ID_TECHPRO, cust:CUST_TECHPRO.CUSTOMERS, custById:CUST_TECHPRO.CM}
+};
+/* Bascule le catalogue actif (fournisseurs, modèles, variantes, clients) selon l'univers (org) de l'élève
+   consulté. À appeler avant toute lecture des variables MODELS/MM/VARIANTS/VM/SUPPLIERS/SUP_BY_ID/CUSTOMERS/CM
+   dès qu'on change d'élève ou de classe côté enseignant (voir openBase, loadTrack, tSend). */
+function useOrg(org){
+  org=UNIVERSE_REGISTRY[org]?org:'p42';
+  var reg=UNIVERSE_REGISTRY[org];
+  MODELS=reg.cat.MODELS;MM=reg.cat.MM;VARIANTS=reg.cat.VARIANTS;VM=reg.cat.VM;
+  SUPPLIERS=reg.sup;SUP_BY_ID=reg.supById;CUSTOMERS=reg.cust;CM=reg.custById;
+  if(typeof S!=='undefined'&&S)S.org=org;
+  return org;
+}
+var MODELS=CAT_P42.MODELS,MM=CAT_P42.MM,VARIANTS=CAT_P42.VARIANTS,VM=CAT_P42.VM;
+var SUPPLIERS=SUPPLIERS_P42,SUP_BY_ID=SUP_BY_ID_P42,CUSTOMERS=CUST_P42.CUSTOMERS,CM=CUST_P42.CM;
 
 function label(v){return v.model.brand+' '+v.model.name}
 function stockStatus(q,min){return q<=0?['Rupture','crit']:(q<=min?['Faible','warn']:['OK','ok'])}
@@ -386,7 +479,11 @@ function swatch(c){return '<span class="sw" style="background:'+COLORS[c][1]+'">
 function priceOf(sku){return VM[sku].model.price}
 
 function shoe(hex){
+  if(typeof V==='function'&&V().icon==='device')return device(hex);
   return '<svg viewBox="0 0 200 104" class="shoe" role="img" aria-label="Illustration de chaussure"><path d="M12 74c0-14 10-19 27-23l30-17c9-5 21-3 29 7 7 9 25 12 45 16 22 4 41 8 41 22v6H12z" fill="'+hex+'" stroke="rgba(0,0,0,.3)" stroke-width="2"/><path d="M12 80h174v6c0 5-4 8-9 8H21c-5 0-9-3-9-8z" fill="#e9e9e4" stroke="rgba(0,0,0,.3)" stroke-width="2"/><path d="M74 38l10 10M84 32l10 10M94 32l10 11" stroke="rgba(255,255,255,.55)" stroke-width="3" stroke-linecap="round"/></svg>';
+}
+function device(hex){
+  return '<svg viewBox="0 0 200 104" class="shoe" role="img" aria-label="Illustration de matériel informatique"><rect x="30" y="14" width="140" height="58" rx="6" fill="'+hex+'" stroke="rgba(0,0,0,.3)" stroke-width="2"/><rect x="42" y="24" width="116" height="38" rx="2" fill="#e9e9e4" stroke="rgba(0,0,0,.15)" stroke-width="1"/><path d="M14 82h172l-10 14a10 10 0 0 1-8 4H32a10 10 0 0 1-8-4z" fill="'+hex+'" stroke="rgba(0,0,0,.3)" stroke-width="2"/><path d="M84 40l10 8-10 8M116 40l-10 8 10 8" stroke="rgba(255,255,255,.55)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>';
 }
 
 /* ============================== Accès aux données (Firebase ou démonstration) ============================== */
@@ -531,6 +628,9 @@ function demoBackend(){
 var S={user:null,uid:null,org:'p42',db:null,rev:0,lastJson:'',sync:'ok',mode:null,view:false,route:{v:'home'},mailSel:null,mailFolder:'in',composing:false,tab:{},cons:[],hist:[],hi:0,tord:null,T:null,unwatch:[],wrongGuess:{},wrongPrep:{},stockUnlocked:false,stockCodeErr:''};
 
 function newDB(u){
+  return (u.org==='techpro')?newDBTechpro(u):newDBSpartoo(u);
+}
+function newDBSpartoo(u){
   var now=Date.now(),stock={};
   VARIANTS.forEach(function(v){stock[v.sku]=v.qty0});
   var db={v:1,created:now,stock:stock,moves:[],mails:[],orders:[],seq:1,customers:[],suppliers:[]};
@@ -540,6 +640,16 @@ function newDB(u){
   addMail(db,{folder:'in',ts:now-3600e3*5,from:'Léa Dubois',fromMail:'lea.dubois@mail.example',to:u.prenom,subject:'Question sur les Stan Smith blanches',kind:'text',
     text:'Bonjour,\n\nJe cherche des Stan Smith blanches en pointure 44. Est-ce que vous en avez en stock actuellement ? Combien de paires ?\n\nMerci d\'avance,\nLéa'});
   addMail(db,{folder:'in',ts:o1.date,from:'Site web Spartoo',fromMail:'no-reply@spartoo.example',to:u.prenom,subject:'Nouvelle commande web n° '+o1.no,kind:'order',order:o1});
+  return db;
+}
+function newDBTechpro(u){
+  var now=Date.now(),stock={};
+  VARIANTS.forEach(function(v){stock[v.sku]=v.qty0});
+  var db={v:1,created:now,stock:stock,moves:[],mails:[],orders:[],seq:1,customers:[],suppliers:[]};
+  var o1={no:'CMD-B20450',date:now-3600e3*3,customerId:'B0001',ship:'CHR',lines:[{sku:'DEL-LAT5440-GR-2',qty:3},{sku:'APP-MBAM3-GR-1',qty:2},{sku:'SAM-OG7-NR-1',qty:1}]};
+  addMail(db,{folder:'in',ts:now-3600e3*26,from:'Mme Lambert, responsable logistique',fromMail:'direction@techpro-distribution.example',to:u.prenom,subject:'Bienvenue chez TechPro Distribution : votre mission',kind:'text',
+    text:'Bonjour '+u.prenom+',\n\nVous rejoignez l\'équipe logistique de TechPro Distribution, grossiste en matériel informatique vendant exclusivement à des professionnels (B2B) : cabinets, établissements, PME...\n\nPour chaque commande, vous devez :\n1. l\'enregistrer,\n2. contrôler le stock de chaque ligne,\n3. éditer le bon de préparation,\n4. valider la préparation pour sortir les articles du stock.\n\nCompte tenu de la valeur du matériel, chaque ligne doit être vérifiée avec la plus grande rigueur. La console (menu Console) vous permet d\'interroger la base avec des commandes comme .getstock REF. Tapez .help pour les voir toutes.\n\nBon courage,\nMme Lambert'});
+  addMail(db,{folder:'in',ts:o1.date,from:'Site web TechPro Distribution',fromMail:'no-reply@techpro-distribution.example',to:u.prenom,subject:'Nouvelle commande client n° '+o1.no,kind:'order',order:o1});
   return db;
 }
 function addMail(db,m){m.id=db.seq++;m.read=false;db.mails.push(m);return m}
@@ -567,7 +677,7 @@ function nextCode(list,prefix,width){
 
 function stopWatch(){S.unwatch.forEach(function(f){try{f()}catch(e){}});S.unwatch=[]}
 async function openBase(uid,profile,viewing){
-  var org=profile.org||'p42';
+  var org=useOrg(profile.org||'p42');
   var st=await Backend.getState(uid,org),db=null;
   if(st){try{db=JSON.parse(st.json)}catch(e){db=null}}
   var fresh=!db||db.v!==1;
@@ -593,7 +703,10 @@ function onInbox(list){
   list.forEach(function(x){
     var o=null;try{o=JSON.parse(x.json)}catch(e){}
     if(o&&!S.db.mails.some(function(m){return m.kind==='order'&&m.order.no===o.no})){
-      addMail(S.db,{folder:'in',ts:o.date,from:'Site web Spartoo',fromMail:'no-reply@spartoo.example',to:S.user.prenom,subject:'Nouvelle commande web n° '+o.no,kind:'order',order:o});changed=true;
+      var wo=(S.user&&S.user.org==='techpro')?
+        {from:'Site web TechPro Distribution',fromMail:'no-reply@techpro-distribution.example',subj:'Nouvelle commande client n° '}:
+        {from:'Site web Spartoo',fromMail:'no-reply@spartoo.example',subj:'Nouvelle commande web n° '};
+      addMail(S.db,{folder:'in',ts:o.date,from:wo.from,fromMail:wo.fromMail,to:S.user.prenom,subject:wo.subj+o.no,kind:'order',order:o});changed=true;
     }
     Backend.ackInbox(S.uid,x.id);
   });
@@ -619,7 +732,7 @@ function ensurePrep(o){
 function rowFilled(r){return r.seen!==''&&r.seen!=null&&!!(r.loc&&r.loc.trim())&&r.qty!==''&&r.qty!=null&&!!r.status}
 function statusLabel(s){return s==='ok'?'<span class="pill ok">Complet</span>':s==='warn'?'<span class="pill warn">Partiel</span>':s==='crit'?'<span class="pill crit">Rupture</span>':'<span class="muted">—</span>'}
 function orderTable(o,withPrice){
-  var h='<div class="scroll"><table class="t"><thead><tr><th>Réf.</th><th>Désignation</th><th>Couleur</th><th class="r">Taille</th><th class="r">Qté</th>'+(withPrice?'<th class="r">PU TTC</th><th class="r">Total</th>':'')+'</tr></thead><tbody>';
+  var h='<div class="scroll"><table class="t"><thead><tr><th>Réf.</th><th>Désignation</th><th>Couleur</th><th class="r">'+V().sizeLabel+'</th><th class="r">Qté</th>'+(withPrice?'<th class="r">PU TTC</th><th class="r">Total</th>':'')+'</tr></thead><tbody>';
   o.lines.forEach(function(l){var v=VM[l.sku];h+='<tr><td class="ref">'+l.sku+'</td><td>'+esc(label(v))+'</td><td>'+swatch(v.color)+'</td><td class="r">'+v.size+'</td><td class="r">'+l.qty+'</td>'+(withPrice?'<td class="r">'+eur(v.model.price)+'</td><td class="r">'+eur(v.model.price*l.qty)+'</td>':'')+'</tr>'});
   return h+'</tbody></table></div>';
 }
@@ -642,7 +755,7 @@ function renderApp(){
   if(!S.user)return renderLogin();
   var unread=S.db.mails.filter(function(m){return m.folder==='in'&&!m.read}).length;
   var todo=S.db.orders.filter(function(o){var s=ostatus(o)[0];return s==='À préparer'||s==='En cours'}).length;
-  var org=ORGS[0],v=S.route.v;
+  var org=ORGS.filter(function(o){return o.id===activeOrg()})[0]||ORGS[0],v=S.route.v;
   function nav(id,lbl,n,on){var act=(on||[id]).indexOf(v)>=0;return '<button class="nav'+(act?' on':'')+'" data-act="nav" data-v="'+id+'"><span>'+lbl+'</span>'+(n?'<span class="n">'+n+'</span>':'')+'</button>'}
   app().innerHTML='<div class="shell"><aside class="side"><div class="wordmark">'+logoMark(24,'#ff6b6b')+'Logi<span>Sim</span></div>'+
    '<div class="org"><b>'+org.name+'</b>'+esc(org.sub)+'</div>'+
@@ -701,10 +814,11 @@ function viewHome(){
   var todo=db.orders.filter(function(o){var s=ostatus(o)[0];return s==='À préparer'||s==='En cours'}).length;
   var rupt=VARIANTS.filter(function(v){return stockOf(v.sku)<=0}).length;
   var pairs=0;VARIANTS.forEach(function(v){pairs+=stockOf(v.sku)});
-  return '<div class="page-head"><div><h1>Bonjour '+esc(S.user.prenom)+'</h1><p>'+ORGS[0].name+' · '+ORGS[0].exo+'</p></div></div>'+
+  var homeOrg=ORGS.filter(function(o){return o.id===activeOrg()})[0]||ORGS[0];
+  return '<div class="page-head"><div><h1>Bonjour '+esc(S.user.prenom)+'</h1><p>'+homeOrg.name+' · '+homeOrg.exo+'</p></div></div>'+
    '<div class="kpis"><button class="kpi" data-act="nav" data-v="mail"><b>'+unread+'</b><span>messages non lus</span></button>'+
    '<button class="kpi" data-act="nav" data-v="orders"><b>'+todo+'</b><span>commandes à préparer</span></button>'+
-   '<button class="kpi" data-act="nav" data-v="stock"><b>'+pairs+'</b><span>paires en stock</span></button>'+
+   '<button class="kpi" data-act="nav" data-v="stock"><b>'+pairs+'</b><span>'+unitWord(pairs)+' en stock</span></button>'+
    '<button class="kpi" data-act="nav" data-v="stock"><b>'+rupt+'</b><span>références en rupture</span></button></div>'+
    '<div class="panel"><div class="panel-h"><h2>Traiter une commande, dans l\'ordre</h2></div><div class="panel-b"><ol class="steps">'+
    '<li><div><b>Lire la commande</b><br><span class="muted">Ouvre la Messagerie et clique sur le mail « Nouvelle commande web ».</span></div></li>'+
@@ -722,9 +836,9 @@ function viewMail(){
     var composer='<div class="mview"><button class="btn sm back" data-act="compose-cancel">← Retour</button><div class="mh"><h2>Nouveau message</h2></div>'+
      '<form id="compose-form"><div class="field"><label for="compose-to">Destinataire (fournisseur)</label><select id="compose-to" required><option value="">Choisir…</option>'+sups.map(function(s){return '<option value="'+s.id+'">'+esc(s.brand)+' — '+esc(s.name)+'</option>'}).join('')+'</select></div>'+
      '<div class="field"><label for="compose-subj">Objet</label><input id="compose-subj" type="text" value="Commande de réapprovisionnement"></div>'+
-     '<div class="field"><label for="compose-body">Message</label><textarea id="compose-body" rows="8" placeholder="Précise, pour chaque référence, sa quantité (ex. PM-SUE-NR-40 : 12 paires)."></textarea></div>'+
+     '<div class="field"><label for="compose-body">Message</label><textarea id="compose-body" rows="8" placeholder="Précise, pour chaque référence, sa quantité (ex. '+(VARIANTS[0]?VARIANTS[0].sku:'REF')+' : 12 '+V().unitPl+')."></textarea></div>'+
      '<div><button class="btn primary" type="submit">Envoyer</button></div></form></div>';
-    return '<div class="page-head"><div><h1>Messagerie</h1><p>Adresse : '+esc(norm(S.user.prenom).replace(/ /g,''))+'@spartoo.example</p></div></div>'+
+    return '<div class="page-head"><div><h1>Messagerie</h1><p>Adresse : '+esc(norm(S.user.prenom).replace(/ /g,''))+'@'+V().mailDomain+'</p></div></div>'+
      '<div class="panel"><div class="mailbox sel"><div class="mlist"></div>'+composer+'</div></div>';
   }
   var list=db.mails.filter(function(m){return m.folder===f}).sort(function(a,b){return b.ts-a.ts});
@@ -746,7 +860,7 @@ function viewMail(){
      (acts?'<div style="display:flex;gap:8px;flex-wrap:wrap">'+acts+'</div>':'')+
      '<form id="reply-form" hidden><div class="field"><label for="reply-t">Votre réponse</label><textarea id="reply-t"></textarea></div><div><button class="btn primary" type="submit">Envoyer</button></div></form></div>';
   }
-  return '<div class="page-head"><div><h1>Messagerie</h1><p>Adresse : '+esc(norm(S.user.prenom).replace(/ /g,''))+'@spartoo.example</p></div></div>'+
+  return '<div class="page-head"><div><h1>Messagerie</h1><p>Adresse : '+esc(norm(S.user.prenom).replace(/ /g,''))+'@'+V().mailDomain+'</p></div></div>'+
    '<div class="panel"><div class="tabs" style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px"><div style="display:flex">'+
    '<button class="tab'+(f==='in'?' on':'')+'" data-act="mail-folder" data-f="in">Réception</button><button class="tab'+(f==='out'?' on':'')+'" data-act="mail-folder" data-f="out">Envoyés</button></div>'+
    '<button class="btn sm primary" data-act="compose-new">Nouveau message</button></div>'+
@@ -793,9 +907,9 @@ function sendSupplierOrder(){
   if(!found.length){
     reply="Bonjour,\n\nNous ne parvenons pas à identifier, dans votre message, de référence "+sup.brand+" accompagnée d'une quantité claire. Merci de préciser pour chaque article sa référence exacte et la quantité souhaitée.\n\nCordialement,\n"+sup.contact+"\n"+sup.name;
   }else if(total<(sup.moq||0)){
-    reply="Bonjour,\n\nNous avons bien reçu votre demande, pour un total de "+total+" paire"+(total>1?'s':'')+". Pour rappel, notre minimum de commande est de "+sup.moq+" paires : merci de compléter votre commande avant que nous puissions la traiter.\n\nCordialement,\n"+sup.contact+"\n"+sup.name;
+    reply="Bonjour,\n\nNous avons bien reçu votre demande, pour un total de "+total+" "+unitWord(total)+". Pour rappel, notre minimum de commande est de "+sup.moq+" "+V().unitPl+" : merci de compléter votre commande avant que nous puissions la traiter.\n\nCordialement,\n"+sup.contact+"\n"+sup.name;
   }else{
-    reply="Bonjour,\n\nCommande bien reçue, pour un total de "+total+" paires : le minimum de commande ("+sup.moq+" paires) est respecté. Livraison prévue sous "+sup.delai+" jours.\n\nCordialement,\n"+sup.contact+"\n"+sup.name;
+    reply="Bonjour,\n\nCommande bien reçue, pour un total de "+total+" "+V().unitPl+" : le minimum de commande ("+sup.moq+" "+V().unitPl+") est respecté. Livraison prévue sous "+sup.delai+" jours.\n\nCordialement,\n"+sup.contact+"\n"+sup.name;
   }
   addMail(S.db,{folder:'in',ts:Date.now()+1000,from:sup.contact,fromMail:sup.email,to:S.user.prenom,subject:'RE : '+subj,kind:'text',text:reply,read:false});
   saveDB();S.composing=false;S.mailFolder='in';S.mailSel=null;renderApp();
@@ -808,7 +922,7 @@ function viewOrders(){
     return '<tr><td class="ref">'+o.no+'</td><td>'+fdate(o.date)+'</td><td>'+esc(c.prenom+' '+c.nom)+'</td><td class="r">'+o.lines.length+'</td><td class="r">'+t.pairs+'</td><td class="r">'+eur(t.total)+'</td><td><span class="pill '+s[1]+'">'+s[0]+'</span></td><td class="r"><button class="btn sm" data-act="order-open" data-no="'+o.no+'">Ouvrir</button></td></tr>'
   }).join('');
   return '<div class="page-head"><div><h1>Commandes clients</h1><p>Les commandes apparaissent ici après avoir été enregistrées depuis la messagerie.</p></div></div>'+
-   '<div class="panel">'+(rows?'<div class="scroll"><table class="t"><thead><tr><th>N°</th><th>Date</th><th>Client</th><th class="r">Lignes</th><th class="r">Paires</th><th class="r">Total TTC</th><th>Statut</th><th></th></tr></thead><tbody>'+rows+'</tbody></table></div>':'<div class="panel-b muted">Aucune commande enregistrée. Ouvre un mail de commande dans la messagerie.</div>')+'</div>';
+   '<div class="panel">'+(rows?'<div class="scroll"><table class="t"><thead><tr><th>N°</th><th>Date</th><th>Client</th><th class="r">Lignes</th><th class="r">'+esc(V().unitPl.charAt(0).toUpperCase()+V().unitPl.slice(1))+'</th><th class="r">Total TTC</th><th>Statut</th><th></th></tr></thead><tbody>'+rows+'</tbody></table></div>':'<div class="panel-b muted">Aucune commande enregistrée. Ouvre un mail de commande dans la messagerie.</div>')+'</div>';
 }
 function getOrder(no){return S.db.orders.filter(function(o){return o.no===no})[0]}
 function viewOrder(){
@@ -830,14 +944,14 @@ function viewOrder(){
       prepCell='<input type="number" min="0" data-prep-field="qty" data-sku="'+l.sku+'" value="'+(r.qty===''?'':r.qty)+'" style="width:64px" aria-label="Quantité à préparer pour '+l.sku+'">';
       statusCell='<select data-prep-field="status" data-sku="'+l.sku+'" aria-label="Statut pour '+l.sku+'">'+statusOpts.map(function(op){return '<option value="'+op[0]+'"'+((r.status||'')===op[0]?' selected':'')+'>'+op[1]+'</option>'}).join('')+'</select>';
     }
-    return '<tr><td class="ref">'+l.sku+'</td><td>'+esc(label(v))+'<div class="small muted">'+COLORS[v.color][0]+' · T.'+v.size+'</div></td><td class="r">'+l.qty+'</td>'+
+    return '<tr><td class="ref">'+l.sku+'</td><td>'+esc(label(v))+'<div class="small muted">'+COLORS[v.color][0]+' · '+V().sizeShort+v.size+'</div></td><td class="r">'+l.qty+'</td>'+
      '<td class="r">'+stockCell+'</td>'+
      '<td class="ref">'+locCell+'</td>'+
      '<td class="r">'+prepCell+'</td><td>'+statusCell+'</td></tr>'
   }).join('');
   var doc=p.doc?bpDoc(o):'';
   return '<div class="page-head"><div><button class="btn sm ghost" data-act="nav" data-v="orders" style="padding-left:0">← Commandes</button><h1>Commande <span class="mono">'+o.no+'</span> <span class="pill '+s[1]+'" style="vertical-align:3px">'+s[0]+'</span></h1></div></div>'+
-   '<div class="panel"><div class="panel-b"><dl class="dl"><dt>Client</dt><dd>'+esc(c.prenom+' '+c.nom)+' <span class="mono small muted">'+c.id+'</span></dd><dt>Adresse</dt><dd>'+esc(c.adr)+', '+c.cp+' '+esc(c.ville)+'</dd><dt>Livraison</dt><dd>'+SHIP[o.ship][0]+'</dd><dt>Date</dt><dd>'+fdt(o.date)+'</dd><dt>Montant</dt><dd>'+eur(t.total)+' TTC, '+t.pairs+' paire'+(t.pairs>1?'s':'')+'</dd></dl></div></div>'+
+   '<div class="panel"><div class="panel-b"><dl class="dl"><dt>Client</dt><dd>'+esc(c.prenom+' '+c.nom)+' <span class="mono small muted">'+c.id+'</span></dd><dt>Adresse</dt><dd>'+esc(c.adr)+', '+c.cp+' '+esc(c.ville)+'</dd><dt>Livraison</dt><dd>'+SHIP[o.ship][0]+'</dd><dt>Date</dt><dd>'+fdt(o.date)+'</dd><dt>Montant</dt><dd>'+eur(t.total)+' TTC, '+t.pairs+' '+unitWord(t.pairs)+'</dd></dl></div></div>'+
    '<div class="panel"><div class="panel-h"><h2>Contrôle du stock</h2><span class="small muted">Trouve le stock réel de chaque référence avec la console (<span class="mono">.getstock REF</span>) et son emplacement (<span class="mono">.getlocation REF</span>). Remplis pour chaque ligne le stock trouvé, l\'emplacement, la quantité à préparer et le statut (Complet, Partiel ou Rupture).</span></div>'+
    '<div class="scroll"><table class="t lines-t"><thead><tr><th>Réf.</th><th>Article</th><th class="r">Commandé</th><th class="r">Stock trouvé</th><th>Emplacement</th><th class="r">À préparer</th><th>Statut</th></tr></thead><tbody>'+rows+'</tbody></table></div>'+
    '<div class="panel-b" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button class="btn primary" data-act="gen-doc"'+(allFilled?'':' disabled')+'>'+(p.doc?'Régénérer le bon de préparation':'Éditer le bon de préparation')+'</button>'+
@@ -864,9 +978,10 @@ function bpDoc(o){
   var miss=missing.length?'<div><div class="lbl">Reliquat / articles non préparés</div><table class="t"><tbody>'+missing.map(function(l){var v=VM[l.sku];return '<tr><td class="ref">'+l.sku+'</td><td>'+esc(label(v))+'</td><td class="r">Manque '+(l.qty-p.rows[l.sku].qty)+' sur '+l.qty+'</td></tr>'}).join('')+'</tbody></table></div>':'';
   var foot=p.validated?'<div class="msg ok">Préparation validée : le stock a été diminué (voir Stock, Mouvements).</div>':
     '<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn primary" data-act="validate"'+(picks.length?'':' disabled')+'>Valider la préparation (sortie de stock)</button><button class="btn" data-act="copy-bp">Copier le bon en texte</button></div><div id="copy-msg" class="small muted"></div>';
-  return '<div class="doc" id="bp"><div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap"><div><div class="lbl">Spartoo · Entrepôt</div><h2>Bon de préparation BP-'+o.no.replace('CMD-','')+'</h2></div><div style="text-align:right"><div class="lbl">Édité le</div>'+fdt(Date.now())+'<br>par '+esc(S.user.prenom)+' ('+esc(S.user.classe)+')</div></div>'+
+  var bpOrg=ORGS.filter(function(o){return o.id===activeOrg()})[0]||ORGS[0];
+  return '<div class="doc" id="bp"><div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap"><div><div class="lbl">'+esc(bpOrg.name)+' · Entrepôt</div><h2>Bon de préparation BP-'+o.no.replace('CMD-','')+'</h2></div><div style="text-align:right"><div class="lbl">Édité le</div>'+fdt(Date.now())+'<br>par '+esc(S.user.prenom)+' ('+esc(S.user.classe)+')</div></div>'+
    '<div class="cols"><div><div class="lbl">Commande</div><b>'+o.no+'</b> du '+fdate(o.date)+'</div><div><div class="lbl">Destinataire</div>'+esc(c.prenom+' '+c.nom)+'<br>'+esc(c.adr)+'<br>'+c.cp+' '+esc(c.ville)+'</div><div><div class="lbl">Transport</div>'+SHIP[o.ship][0]+'</div></div>'+
-   (picks.length?'<div class="scroll"><table class="t"><thead><tr><th>N°</th><th>Emplacement</th><th>Réf.</th><th>Article</th><th>Couleur</th><th class="r">Taille</th><th class="r">Qté</th><th class="r">Prélevé</th></tr></thead><tbody>'+rows+'</tbody></table></div><div class="right"><b>'+picks.length+' ligne'+(picks.length>1?'s':'')+' · '+pairs+' paire'+(pairs>1?'s':'')+'</b></div>':'<p>Aucun article disponible : rien à préparer.</p>')+
+   (picks.length?'<div class="scroll"><table class="t"><thead><tr><th>N°</th><th>Emplacement</th><th>Réf.</th><th>Article</th><th>Couleur</th><th class="r">'+V().sizeLabel+'</th><th class="r">Qté</th><th class="r">Prélevé</th></tr></thead><tbody>'+rows+'</tbody></table></div><div class="right"><b>'+picks.length+' ligne'+(picks.length>1?'s':'')+' · '+pairs+' '+unitWord(pairs)+'</b></div>':'<p>Aucun article disponible : rien à préparer.</p>')+
    miss+'<div class="sign"><div><div class="lbl">Préparateur</div></div><div><div class="lbl">Contrôle emballage</div></div></div></div>'+foot;
 }
 function genDoc(){var o=getOrder(S.route.no);o.prep.doc=true;saveDB();renderApp();var b=$('#bp');if(b)b.scrollIntoView({block:'start'})}
@@ -880,7 +995,7 @@ function validateBP(){
 }
 function copyBP(){
   var o=getOrder(S.route.no),p=o.prep,c=CM[o.customerId],t='BON DE PRÉPARATION BP-'+o.no.replace('CMD-','')+'\nCommande '+o.no+' | Client : '+c.prenom+' '+c.nom+' | '+SHIP[o.ship][0]+'\n\n';
-  o.lines.filter(function(l){return p.rows[l.sku].qty>0}).sort(function(a,b){return VM[a.sku].loc<VM[b.sku].loc?-1:1}).forEach(function(l){t+=VM[l.sku].loc+'\t'+l.sku+'\t'+label(VM[l.sku])+'\tT.'+VM[l.sku].size+'\tQté '+p.rows[l.sku].qty+'\n'});
+  o.lines.filter(function(l){return p.rows[l.sku].qty>0}).sort(function(a,b){return VM[a.sku].loc<VM[b.sku].loc?-1:1}).forEach(function(l){t+=VM[l.sku].loc+'\t'+l.sku+'\t'+label(VM[l.sku])+'\t'+V().sizeShort+VM[l.sku].size+'\tQté '+p.rows[l.sku].qty+'\n'});
   var m=$('#copy-msg');
   function ok(){if(m)m.textContent='Bon copié dans le presse-papiers.'}
   function ko(){if(m)m.textContent='Copie impossible ici : sélectionne le bon à la souris.'}
@@ -890,7 +1005,7 @@ function copyBP(){
 /* ---- Catalogue ---- */
 function viewCatalog(){
   var brands=[],cats=[];MODELS.forEach(function(m){if(brands.indexOf(m.brand)<0)brands.push(m.brand);if(cats.indexOf(m.cat)<0)cats.push(m.cat)});
-  return '<div class="page-head"><div><h1>Catalogue</h1><p>'+MODELS.length+' modèles, '+VARIANTS.length+' références couleur et taille.</p></div></div>'+
+  return '<div class="page-head"><div><h1>Catalogue</h1><p>'+MODELS.length+' modèles, '+VARIANTS.length+' références couleur et '+V().configWord+'.</p></div></div>'+
    '<div class="filters"><div class="field grow"><label for="c-q">Recherche</label><input id="c-q" type="text" data-filter="cat" placeholder="Nom, marque ou référence"></div>'+
    '<div class="field"><label for="c-b">Marque</label><select id="c-b" data-filter="cat"><option value="">Toutes</option>'+brands.map(function(b){return '<option>'+b+'</option>'}).join('')+'</select></div>'+
    '<div class="field"><label for="c-c">Catégorie</label><select id="c-c" data-filter="cat"><option value="">Toutes</option>'+cats.map(function(b){return '<option>'+b+'</option>'}).join('')+'</select></div></div><div id="list"></div>';
@@ -919,7 +1034,7 @@ function viewProduct(){
    '<dt>Référence modèle</dt><dd class="mono">'+m.ref+'</dd><dt>Marque</dt><dd>'+m.brand+'</dd>'+
    '<dt>Prix de vente TTC</dt><dd><b class="mono">'+eur(m.price)+'</b></dd><dt>Prix de vente HT</dt><dd class="mono">'+eur(ht)+'</dd>'+
    '<dt>Prix d\'achat HT</dt><dd class="mono">'+eur(m.cost)+'</dd><dt>Marge brute</dt><dd class="mono">'+eur(ht-m.cost)+' ('+Math.round((ht-m.cost)/ht*100)+' %)</dd>'+
-   '<dt>Tailles</dt><dd>'+m.s0+' à '+m.s1+'</dd><dt>Seuil d\'alerte</dt><dd>'+m.min+' paires par référence</dd><dt>Stock maximum</dt><dd>'+m.max+' paires par référence</dd>'+
+   '<dt>'+V().sizeLabel+'s</dt><dd>'+m.s0+' à '+m.s1+'</dd><dt>Seuil d\'alerte</dt><dd>'+m.min+' '+V().unitPl+' par référence</dd><dt>Stock maximum</dt><dd>'+m.max+' '+V().unitPl+' par référence</dd>'+
    '<dt>Fournisseur</dt><dd>'+esc(sp.name)+' <span class="mono small muted">'+sp.id+'</span><br><span class="small muted">Délai '+sp.delai+' jours · franco '+eur(sp.franco)+'</span></dd></dl></div></div></div>';
 }
 
@@ -947,7 +1062,7 @@ function viewStock(){
     body='<div class="panel">'+(mv?'<div class="scroll"><table class="t"><thead><tr><th>Date</th><th>Réf.</th><th>Type</th><th class="r">Qté</th><th class="r">Stock après</th><th>Origine</th><th>Par</th></tr></thead><tbody>'+mv+'</tbody></table></div>':'<div class="panel-b muted">Aucun mouvement pour le moment. Les préparations validées et les commandes .setstock, .addstock et .removestock apparaissent ici.</div>')+'</div>';
   }
   return '<div class="page-head"><div><h1>Stock</h1><p>Niveaux par référence et historique des mouvements.</p></div></div>'+
-   '<div class="kpis"><div class="kpi" style="cursor:default"><b>'+pairs+'</b><span>paires en stock</span></div><div class="kpi" style="cursor:default"><b>'+eur(val).replace(/\s?€/,' €')+'</b><span>valeur au prix d\'achat HT</span></div><div class="kpi" style="cursor:default"><b>'+low+'</b><span>références sous le seuil</span></div><div class="kpi" style="cursor:default"><b>'+rup+'</b><span>références en rupture</span></div></div>'+
+   '<div class="kpis"><div class="kpi" style="cursor:default"><b>'+pairs+'</b><span>'+unitWord(pairs)+' en stock</span></div><div class="kpi" style="cursor:default"><b>'+eur(val).replace(/\s?€/,' €')+'</b><span>valeur au prix d\'achat HT</span></div><div class="kpi" style="cursor:default"><b>'+low+'</b><span>références sous le seuil</span></div><div class="kpi" style="cursor:default"><b>'+rup+'</b><span>références en rupture</span></div></div>'+
    '<div class="tabs"><button class="tab'+(tab==='lvl'?' on':'')+'" data-act="tab" data-k="stock" data-t="lvl">Niveaux de stock</button><button class="tab'+(tab==='mv'?' on':'')+'" data-act="tab" data-k="stock" data-t="mv">Mouvements</button></div>'+body;
 }
 function updateStock(){
@@ -959,13 +1074,13 @@ function updateStock(){
     if(q&&norm(v.sku+' '+label(v)+' '+v.loc).indexOf(q)<0)continue;
     n++;if(n<=150)rows+='<tr><td class="ref">'+v.sku+'</td><td>'+esc(label(v))+'</td><td>'+swatch(v.color)+'</td><td class="r">'+v.size+'</td><td class="r"><b class="mono">'+qty+'</b></td><td class="r muted">'+v.model.min+'</td><td class="ref">'+v.loc+'</td><td><span class="pill '+s[1]+'">'+s[0]+'</span></td></tr>';
   }
-  $('#list').innerHTML='<div class="panel"><div class="scroll"><table class="t"><thead><tr><th>Référence</th><th>Article</th><th>Couleur</th><th class="r">Taille</th><th class="r">Stock</th><th class="r">Seuil</th><th>Emplacement</th><th>Statut</th></tr></thead><tbody>'+(rows||'<tr><td colspan="8" class="muted">Aucun résultat.</td></tr>')+'</tbody></table></div></div>'+(n>150?'<p class="small muted">'+n+' résultats, les 150 premiers sont affichés. Affine la recherche.</p>':'<p class="small muted">'+n+' résultat'+(n>1?'s':'')+'.</p>');
+  $('#list').innerHTML='<div class="panel"><div class="scroll"><table class="t"><thead><tr><th>Référence</th><th>Article</th><th>Couleur</th><th class="r">'+V().sizeLabel+'</th><th class="r">Stock</th><th class="r">Seuil</th><th>Emplacement</th><th>Statut</th></tr></thead><tbody>'+(rows||'<tr><td colspan="8" class="muted">Aucun résultat.</td></tr>')+'</tbody></table></div></div>'+(n>150?'<p class="small muted">'+n+' résultats, les 150 premiers sont affichés. Affine la recherche.</p>':'<p class="small muted">'+n+' résultat'+(n>1?'s':'')+'.</p>');
 }
 
 /* ---- Tiers ---- */
 function viewTiers(){
   var tab=S.tab.tiers||'cli';
-  return '<div class="page-head"><div><h1>Clients et fournisseurs</h1><p>'+allCustomers().length+' clients particuliers, '+allSuppliers().length+' fournisseurs (marques).</p></div></div>'+
+  return '<div class="page-head"><div><h1>Clients et fournisseurs</h1><p>'+allCustomers().length+' clients, '+allSuppliers().length+' fournisseurs (marques).</p></div></div>'+
    '<div class="tabs"><button class="tab'+(tab==='cli'?' on':'')+'" data-act="tab" data-k="tiers" data-t="cli">Clients</button><button class="tab'+(tab==='fou'?' on':'')+'" data-act="tab" data-k="tiers" data-t="fou">Fournisseurs</button></div>'+
    '<div class="filters"><div class="field grow"><label for="t-q">Recherche</label><input id="t-q" type="text" data-filter="tiers" placeholder="Nom, ville, code…"></div></div><div id="list"></div>';
 }
@@ -976,7 +1091,7 @@ function updateTiers(){
     h='<table class="t"><thead><tr><th>Code</th><th>Nom</th><th>E-mail</th><th>Téléphone</th><th>Adresse</th><th>Client depuis</th><th class="r">Commandes</th></tr></thead><tbody>'+r.map(function(c){return '<tr><td class="ref">'+c.id+'</td><td>'+esc(c.prenom+' '+c.nom)+'</td><td class="ref">'+c.email+'</td><td class="ref">'+c.tel+'</td><td>'+esc(c.adr)+', '+c.cp+' '+esc(c.ville)+'</td><td>'+fdate(c.since)+'</td><td class="r">'+c.nb+'</td></tr>'}).join('')+'</tbody></table>';
   }else{
     var f=allSuppliers().filter(function(s){return !q||norm(s.id+' '+s.brand+' '+s.name+' '+s.ville).indexOf(q)>=0});
-    h='<table class="t"><thead><tr><th>Code</th><th>Marque</th><th>Société</th><th>Contact</th><th>Téléphone</th><th>E-mail</th><th>Adresse</th><th class="r">Délai</th><th class="r">Franco</th><th class="r">Mini. commande</th><th>Paiement</th></tr></thead><tbody>'+f.map(function(s){return '<tr><td class="ref">'+s.id+'</td><td><b>'+s.brand+'</b></td><td>'+esc(s.name)+'</td><td>'+esc(s.contact)+'</td><td class="ref">'+s.tel+'</td><td class="ref">'+s.email+'</td><td>'+esc(s.adr)+', '+s.cp+' '+esc(s.ville)+'</td><td class="r">'+s.delai+' j</td><td class="r">'+eur(s.franco)+'</td><td class="r">'+(s.moq||'—')+' paires</td><td>'+s.pay+'</td></tr>'}).join('')+'</tbody></table>';
+    h='<table class="t"><thead><tr><th>Code</th><th>Marque</th><th>Société</th><th>Contact</th><th>Téléphone</th><th>E-mail</th><th>Adresse</th><th class="r">Délai</th><th class="r">Franco</th><th class="r">Mini. commande</th><th>Paiement</th></tr></thead><tbody>'+f.map(function(s){return '<tr><td class="ref">'+s.id+'</td><td><b>'+s.brand+'</b></td><td>'+esc(s.name)+'</td><td>'+esc(s.contact)+'</td><td class="ref">'+s.tel+'</td><td class="ref">'+s.email+'</td><td>'+esc(s.adr)+', '+s.cp+' '+esc(s.ville)+'</td><td class="r">'+s.delai+' j</td><td class="r">'+eur(s.franco)+'</td><td class="r">'+(s.moq||'—')+' '+V().unitPl+'</td><td>'+s.pay+'</td></tr>'}).join('')+'</tbody></table>';
   }
   $('#list').innerHTML='<div class="panel"><div class="scroll">'+h+'</div></div>';
 }
@@ -1013,10 +1128,10 @@ var CMDS={
  }],
  getstock:['.getstock <réf>','Stock d\'une référence article ou d\'un modèle',function(a){
    var r=resolveRef(a[0]);
-   if(r.v){var v=r.v,q=stockOf(v.sku);return kv([['Référence','<span class="mono">'+v.sku+'</span>'],['Article',esc(label(v))],['Couleur',COLORS[v.color][0]],['Taille',v.size],['Stock','<b>'+q+'</b> paire'+(q>1?'s':'')],['Seuil',v.model.min],['Stock maximum',v.model.max],['Emplacement',v.loc],['Statut',stockPill(q,v.model.min)]])}
-   if(r.list)return tbl(['Référence','Article','Stock','Statut'],r.list.map(function(v){var q=stockOf(v.sku);return ['<span class="mono">'+v.sku+'</span>',esc(label(v))+' '+COLORS[v.color][0]+' T.'+v.size,'<b>'+q+'</b>',stockPill(q,v.model.min)]}),[2]);
+   if(r.v){var v=r.v,q=stockOf(v.sku);return kv([['Référence','<span class="mono">'+v.sku+'</span>'],['Article',esc(label(v))],['Couleur',COLORS[v.color][0]],[V().sizeLabel,v.size],['Stock','<b>'+q+'</b> '+unitWord(q)],['Seuil',v.model.min],['Stock maximum',v.model.max],['Emplacement',v.loc],['Statut',stockPill(q,v.model.min)]])}
+   if(r.list)return tbl(['Référence','Article','Stock','Statut'],r.list.map(function(v){var q=stockOf(v.sku);return ['<span class="mono">'+v.sku+'</span>',esc(label(v))+' '+COLORS[v.color][0]+' '+V().sizeShort+v.size,'<b>'+q+'</b>',stockPill(q,v.model.min)]}),[2]);
    var m=r.m,tot=modelStock(m);
-   return '<div>'+esc(m.brand+' '+m.name)+' : <b>'+tot+'</b> paires au total</div>'+matrix(m);
+   return '<div>'+esc(m.brand+' '+m.name)+' : <b>'+tot+'</b> '+unitWord(tot)+' au total</div>'+matrix(m);
  }],
  getprice:['.getprice <réf>','Prix de vente et prix d\'achat',function(a){
    var r=resolveRef(a[0]),m=r.v?r.v.model:(r.m||(r.list&&r.list[0].model));
@@ -1025,7 +1140,7 @@ var CMDS={
  }],
  getproduct:['.getproduct <réf>','Fiche produit résumée',function(a){
    var r=resolveRef(a[0]),m=r.v?r.v.model:(r.m||(r.list&&r.list[0].model)),sp=SUP_BY_ID[m.sup];
-   return kv([['Modèle',esc(m.brand+' '+m.name)],['Référence','<span class="mono">'+m.ref+'</span>'],['Catégorie',m.cat],['Couleurs',m.colors.map(function(c){return COLORS[c][0]+' ('+c+')'}).join(', ')],['Tailles',m.s0+' à '+m.s1],['Prix TTC',eur(m.price)],['Fournisseur',esc(sp.brand)+' <span class="dim">('+sp.id+', délai '+sp.delai+' j)</span>'],['Description',esc(m.desc)]]);
+   return kv([['Modèle',esc(m.brand+' '+m.name)],['Référence','<span class="mono">'+m.ref+'</span>'],['Catégorie',m.cat],['Couleurs',m.colors.map(function(c){return COLORS[c][0]+' ('+c+')'}).join(', ')],[V().sizeLabel+'s',m.s0+' à '+m.s1],['Prix TTC',eur(m.price)],['Fournisseur',esc(sp.brand)+' <span class="dim">('+sp.id+', délai '+sp.delai+' j)</span>'],['Description',esc(m.desc)]]);
  }],
  getlocation:['.getlocation <réf>','Emplacement en entrepôt',function(a){
    var r=resolveRef(a[0]);
@@ -1037,13 +1152,13 @@ var CMDS={
    var n=a[0]!==undefined?parseInt(a[0],10):null;if(a[0]!==undefined&&isNaN(n))throw new Error('n doit être un nombre. Exemple : .lowstock 3');
    var r=VARIANTS.filter(function(v){var q=stockOf(v.sku);return n===null?q<=v.model.min:q<=n}).sort(function(x,y){return stockOf(x.sku)-stockOf(y.sku)});
    var t=r.length;
-   return '<div>'+t+' référence'+(t>1?'s':'')+(t>40?' (les 40 plus basses)':'')+'</div>'+tbl(['Référence','Article','Stock','Statut'],r.slice(0,40).map(function(v){var q=stockOf(v.sku);return ['<span class="mono">'+v.sku+'</span>',esc(label(v))+' '+COLORS[v.color][0]+' T.'+v.size,'<b>'+q+'</b>',stockPill(q,v.model.min)]}),[2]);
+   return '<div>'+t+' référence'+(t>1?'s':'')+(t>40?' (les 40 plus basses)':'')+'</div>'+tbl(['Référence','Article','Stock','Statut'],r.slice(0,40).map(function(v){var q=stockOf(v.sku);return ['<span class="mono">'+v.sku+'</span>',esc(label(v))+' '+COLORS[v.color][0]+' '+V().sizeShort+v.size,'<b>'+q+'</b>',stockPill(q,v.model.min)]}),[2]);
  }],
  stockvalue:['.stockvalue [marque]','Valeur du stock au prix d\'achat HT',function(a){
    var b=norm(a.join(' ')),val=0,pairs=0;
    VARIANTS.forEach(function(v){if(b&&norm(v.model.brand)!==b)return;var q=stockOf(v.sku);val+=q*v.model.cost;pairs+=q});
    if(b&&!pairs&&!MODELS.some(function(m){return norm(m.brand)===b}))throw new Error('Marque inconnue : '+esc(a.join(' ')));
-   return kv([['Périmètre',b?esc(a.join(' ')):'Toute la boutique'],['Paires',pairs],['Valeur achat HT','<b>'+eur(val)+'</b>']]);
+   return kv([['Périmètre',b?esc(a.join(' ')):'Tout le stock'],[V().unitPl.charAt(0).toUpperCase()+V().unitPl.slice(1),pairs],['Valeur achat HT','<b>'+eur(val)+'</b>']]);
  }],
  getclient:['.getclient <code ou nom>','Fiche client',function(a){
    var q=norm(a.join(' '));if(!q)throw new Error('Exemple : .getclient C0007 ou .getclient dubois');
@@ -1056,7 +1171,7 @@ var CMDS={
    var q=norm(a.join(' '));if(!q)throw new Error('Exemple : .getsupplier nike ou .getsupplier F002');
    var r=allSuppliers().filter(function(s){return norm(s.id+' '+s.brand+' '+s.name).indexOf(q)>=0});
    if(!r.length)throw new Error('Aucun fournisseur trouvé.');
-   return r.map(function(s){return kv([['Code',s.id],['Marque',s.brand],['Société',esc(s.name)],['Contact',esc(s.contact)+' · '+s.tel],['E-mail',s.email],['Adresse',esc(s.adr)+', '+s.cp+' '+esc(s.ville)],['Délai',s.delai+' jours'],['Franco',eur(s.franco)],['Minimum de commande',(s.moq||'—')+' paires'],['Paiement',s.pay]])}).join('<hr style="border:0;border-top:1px solid #3a262a;width:100%">');
+   return r.map(function(s){return kv([['Code',s.id],['Marque',s.brand],['Société',esc(s.name)],['Contact',esc(s.contact)+' · '+s.tel],['E-mail',s.email],['Adresse',esc(s.adr)+', '+s.cp+' '+esc(s.ville)],['Délai',s.delai+' jours'],['Franco',eur(s.franco)],['Minimum de commande',(s.moq||'—')+' '+V().unitPl],['Paiement',s.pay]])}).join('<hr style="border:0;border-top:1px solid #3a262a;width:100%">');
  }],
  addclient:['.addclient <prénom nom> ; <e-mail> ; <téléphone> ; <adresse> ; <code postal> ; <ville>','Crée un nouveau client particulier',function(a){
    var parts=a.join(' ').split(';').map(function(x){return x.trim()});
@@ -1091,7 +1206,7 @@ var CMDS={
    var o=S.db.orders.filter(function(x){return x.no.indexOf(q)>=0})[0];
    if(!o)throw new Error('Commande non enregistrée. Ouvre le mail de commande et clique sur « Enregistrer la commande ».');
    var c=CM[o.customerId],t=orderTotals(o),s=ostatus(o);
-   return kv([['Commande',o.no],['Client',esc(c.prenom+' '+c.nom)+' ('+c.id+')'],['Livraison',SHIP[o.ship][0]],['Total TTC',eur(t.total)],['Statut',s[0]]])+tbl(['Référence','Article','Qté'],o.lines.map(function(l){return ['<span class="mono">'+l.sku+'</span>',esc(label(VM[l.sku]))+' '+COLORS[VM[l.sku].color][0]+' T.'+VM[l.sku].size,l.qty]}),[2]);
+   return kv([['Commande',o.no],['Client',esc(c.prenom+' '+c.nom)+' ('+c.id+')'],['Livraison',SHIP[o.ship][0]],['Total TTC',eur(t.total)],['Statut',s[0]]])+tbl(['Référence','Article','Qté'],o.lines.map(function(l){return ['<span class="mono">'+l.sku+'</span>',esc(label(VM[l.sku]))+' '+COLORS[VM[l.sku].color][0]+' '+V().sizeShort+VM[l.sku].size,l.qty]}),[2]);
  }],
  movements:['.movements [réf]','Derniers mouvements de stock',function(a){
    var ref=a[0]?String(a[0]).toUpperCase():null;
@@ -1100,8 +1215,8 @@ var CMDS={
    return tbl(['Date','Référence','Type','Qté','Stock après'],r.map(function(m){return [fdt(m.ts),'<span class="mono">'+m.sku+'</span>',esc(m.type),(m.delta>0?'+':'')+m.delta,m.after]}),[3,4]);
  }],
  setstock:['.setstock <réf> <qté>','Fixe le stock d\'un article (inventaire)',function(a){return adjust('set',a)}],
- addstock:['.addstock <réf> <qté>','Ajoute des paires (réception)',function(a){return adjust('add',a)}],
- removestock:['.removestock <réf> <qté>','Retire des paires (sortie, casse)',function(a){return adjust('rem',a)}],
+ addstock:['.addstock <réf> <qté>','Ajoute du stock (réception)',function(a){return adjust('add',a)}],
+ removestock:['.removestock <réf> <qté>','Retire du stock (sortie, casse)',function(a){return adjust('rem',a)}],
  clear:['.clear','Vide la console',function(){S.cons=[];return null}]
 };
 function adjust(kind,a){
@@ -1109,7 +1224,7 @@ function adjust(kind,a){
   if(!ref||a[1]===undefined||isNaN(q)||q<0||String(q)!==String(a[1]).trim())throw new Error('Syntaxe : .'+(kind==='set'?'setstock':kind==='add'?'addstock':'removestock')+' <réf article> <quantité entière positive>');
   var v=VM[ref];if(!v)throw new Error('Référence article introuvable : '+esc(ref)+'. Il faut la référence complète (modèle-couleur-taille).');
   var old=stockOf(v.sku),nw=kind==='set'?q:(kind==='add'?old+q:old-q);
-  if(nw<0)throw new Error('Stock insuffisant : '+old+' paire'+(old>1?'s':'')+' disponible'+(old>1?'s':'')+', impossible d\'en retirer '+q+'.');
+  if(nw<0)throw new Error('Stock insuffisant : '+old+' '+unitWord(old)+' disponible'+(old>1?'s':'')+', impossible d\'en retirer '+q+'.');
   S.db.stock[v.sku]=nw;
   logMove(v.sku,kind==='set'?'Ajustement inventaire':(kind==='add'?'Entrée':'Sortie'),nw-old,'Console');saveDB();
   return '<span class="okc">OK</span> '+v.sku+' : '+old+' → <b>'+nw+'</b>';
@@ -1136,6 +1251,24 @@ function tState(){
   return S.T;
 }
 function cmpStu(a,b){return String(a.classe||'').localeCompare(String(b.classe||''),'fr')||String(a.prenom+a.nom).localeCompare(String(b.prenom+b.nom),'fr')}
+/* Univers actif côté enseignant pour les écrans qui lisent le catalogue global (composer une commande…) :
+   celui de la classe filtrée, sinon celui de la cible sélectionnée, sinon Spartoo par défaut. */
+function orgOfClass(cls){
+  var s=((S.T&&S.T.students)||[]).filter(function(x){return x.classe===cls})[0];
+  return s&&s.org;
+}
+function tActiveOrg(){
+  var T=tState();
+  if(T.cls){var o=orgOfClass(T.cls);if(o)return o}
+  var target=S.tord&&S.tord.target;
+  if(target&&target.indexOf('u:')===0){
+    var s=(T.students||[]).filter(function(x){return x.uid===target.slice(2)})[0];
+    if(s&&s.org)return s.org;
+  }else if(target&&target.indexOf('c:')===0){
+    var o2=orgOfClass(target.slice(2));if(o2)return o2;
+  }
+  return 'p42';
+}
 async function loadStudents(keep){
   var T=tState();T.loading=true;renderTeacher();
   try{T.students=(await Backend.listStudents()).sort(cmpStu);if(!keep)T.msg=''}
@@ -1143,6 +1276,7 @@ async function loadStudents(keep){
   T.loading=false;renderTeacher();
 }
 function renderTeacher(){
+  useOrg(tActiveOrg());
   var T=tState(),st=T.students||[],classes=[];
   st.forEach(function(s){if(classes.indexOf(s.classe)<0)classes.push(s.classe)});
   var tabs=[['list','Élèves'],['create','Créer une classe'],['send','Envoyer une commande'],['track','Suivi de l\'exercice']].map(function(t){return '<button class="tab'+(T.tab===t[0]?' on':'')+'" data-act="t-tab" data-t="'+t[0]+'">'+t[1]+'</button>'}).join('');
@@ -1194,11 +1328,12 @@ function tSend(st,classes){
    '<div class="field"><label for="t-tg">Destinataires</label><select id="t-tg">'+opts+'</select></div>'+
    '<div class="filters"><div class="field grow"><label for="t-c">Client</label><select id="t-c">'+CUSTOMERS.map(function(c){return '<option value="'+c.id+'"'+(c.id===t.cust?' selected':'')+'>'+c.id+' · '+esc(c.prenom+' '+c.nom)+' ('+esc(c.ville)+')</option>'}).join('')+'</select></div>'+
    '<div class="field"><label for="t-s">Livraison</label><select id="t-s">'+Object.keys(SHIP).map(function(k){return '<option value="'+k+'"'+(k===t.ship?' selected':'')+'>'+SHIP[k][0]+' ('+eur(SHIP[k][1])+')</option>'}).join('')+'</select></div></div>'+
-   '<div class="filters" style="align-items:flex-end"><div class="field grow"><label for="t-m">Modèle</label><select id="t-m">'+MODELS.map(function(m){return '<option value="'+m.ref+'">'+m.ref+' · '+esc(m.brand+' '+m.name)+'</option>'}).join('')+'</select></div><div class="field"><label for="t-k">Couleur</label><select id="t-k"></select></div><div class="field"><label for="t-z">Taille</label><select id="t-z"></select></div><div class="field" style="flex:0 0 90px"><label for="t-n">Qté</label><input id="t-n" type="number" min="1" max="10" value="1" style="width:100%"></div><button class="btn" data-act="t-add" style="flex:0 0 auto">Ajouter</button></div>'+
+   '<div class="filters" style="align-items:flex-end"><div class="field grow"><label for="t-m">Modèle</label><select id="t-m">'+MODELS.map(function(m){return '<option value="'+m.ref+'">'+m.ref+' · '+esc(m.brand+' '+m.name)+'</option>'}).join('')+'</select></div><div class="field"><label for="t-k">Couleur</label><select id="t-k"></select></div><div class="field"><label for="t-z">'+V().sizeLabel+'</label><select id="t-z"></select></div><div class="field" style="flex:0 0 90px"><label for="t-n">Qté</label><input id="t-n" type="number" min="1" max="10" value="1" style="width:100%"></div><button class="btn" data-act="t-add" style="flex:0 0 auto">Ajouter</button></div>'+
    '<div id="t-lines"></div>'+
    '<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" data-act="t-rand">Commande aléatoire</button><button class="btn primary" data-act="t-send">Envoyer la commande</button></div><div id="t-out"></div></div></div>';
 }
 function fillColors(){
+  useOrg(tActiveOrg());
   var m=MM[$('#t-m').value];
   $('#t-k').innerHTML=m.colors.map(function(c){return '<option value="'+c+'">'+COLORS[c][0]+'</option>'}).join('');
   $('#t-z').innerHTML=m.sizes.map(function(s){return '<option>'+s+'</option>'}).join('');
@@ -1206,12 +1341,13 @@ function fillColors(){
 }
 function renderTLines(){
   var t=S.tord,el=$('#t-lines');
-  el.innerHTML=t.lines.length?'<div class="scroll"><table class="t"><thead><tr><th>Réf.</th><th>Article</th><th class="r">Qté</th><th></th></tr></thead><tbody>'+t.lines.map(function(l,i){return '<tr><td class="ref">'+l.sku+'</td><td>'+esc(label(VM[l.sku]))+' · '+COLORS[VM[l.sku].color][0]+' · T.'+VM[l.sku].size+'</td><td class="r">'+l.qty+'</td><td class="r"><button class="btn sm" data-act="t-del" data-i="'+i+'">Retirer</button></td></tr>'}).join('')+'</tbody></table></div>':'<p class="muted">Aucune ligne. Ajoute des articles ou clique sur « Commande aléatoire ».</p>';
+  el.innerHTML=t.lines.length?'<div class="scroll"><table class="t"><thead><tr><th>Réf.</th><th>Article</th><th class="r">Qté</th><th></th></tr></thead><tbody>'+t.lines.map(function(l,i){return '<tr><td class="ref">'+l.sku+'</td><td>'+esc(label(VM[l.sku]))+' · '+COLORS[VM[l.sku].color][0]+' · '+V().sizeShort+VM[l.sku].size+'</td><td class="r">'+l.qty+'</td><td class="r"><button class="btn sm" data-act="t-del" data-i="'+i+'">Retirer</button></td></tr>'}).join('')+'</tbody></table></div>':'<p class="muted">Aucune ligne. Ajoute des articles ou clique sur « Commande aléatoire ».</p>';
 }
 function tAdd(sku,qty){var t=S.tord,f=t.lines.filter(function(l){return l.sku===sku})[0];if(f)f.qty+=qty;else t.lines.push({sku:sku,qty:qty})}
 function tRand(){
   var t=S.tord,r=Math.random,n=2+Math.floor(r()*3),seen={};t.lines=[];
   t.target=$('#t-tg').value;
+  useOrg(tActiveOrg());
   for(var i=0;i<n;i++){var v=VARIANTS[Math.floor(r()*VARIANTS.length)];if(seen[v.sku])continue;seen[v.sku]=1;t.lines.push({sku:v.sku,qty:1+Math.floor(r()*3)})}
   t.cust=CUSTOMERS[Math.floor(r()*CUSTOMERS.length)].id;
   var ks=Object.keys(SHIP);t.ship=ks[Math.floor(r()*ks.length)];
@@ -1335,6 +1471,7 @@ async function loadTrack(){
     return Backend.getState(s.uid,s.org||'p42').then(function(st){
       var db=null;try{db=st&&JSON.parse(st.json)}catch(e){db=null}
       if(!db)return {uid:s.uid,error:true};
+      useOrg(s.org||'p42');
       var steps={};STEPS.forEach(function(step){steps[step.id]=step.check(db)});
       return {uid:s.uid,steps:steps};
     }).catch(function(){return {uid:s.uid,error:true}});
