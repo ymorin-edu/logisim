@@ -1,0 +1,11 @@
+{
+  "firebaseConfig": {
+    "apiKey": "AIzaSyBx0qupLAedrA0Nsn42seWNLlPRRY3k-F4",
+    "authDomain": "suite-logistique-darboux.firebaseapp.com",
+    "projectId": "suite-logistique-darboux",
+    "storageBucket": "suite-logistique-darboux.firebasestorage.app",
+    "messagingSenderId": "1072068656937",
+    "appId": "1:1072068656937:web:40cc8a84a583114aa78138"
+  },
+  "teacherEmail": "morin.tristan1@gmail.com"
+}
