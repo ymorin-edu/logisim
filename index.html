@@ -255,17 +255,14 @@ table.t{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
 <div id="dlg"></div>
 
 <script type="module">
-/* ===== CONFIGURATION FIREBASE : remplace les valeurs "REMPLACER" par celles de ton projet ===== */
-const firebaseConfig = {
-  apiKey: "REMPLACER",
-  authDomain: "REMPLACER.firebaseapp.com",
-  projectId: "REMPLACER",
-  storageBucket: "REMPLACER.appspot.com",
-  messagingSenderId: "REMPLACER",
-  appId: "REMPLACER"
-};
-const TEACHER_EMAIL = "morin.tristan1@gmail.com";
-/* ===== FIN DE LA CONFIGURATION ===== */
+/* La configuration Firebase (clé, adresse enseignant) vit dans logisim-config.json,
+   un fichier séparé que tu crées une fois dans GitHub et ne touches plus jamais :
+   les futures mises à jour de ce fichier index.html n'y toucheront pas. */
+var firebaseConfig=null,TEACHER_EMAIL='';
+try{
+  var cfgResp=await fetch('./logisim-config.json',{cache:'no-store'});
+  if(cfgResp.ok){var cfg=await cfgResp.json();firebaseConfig=cfg.firebaseConfig||null;TEACHER_EMAIL=cfg.teacherEmail||''}
+}catch(e){}
 (function(){
 'use strict';
 
@@ -384,7 +381,7 @@ function shoe(hex){
 
 /* ============================== Accès aux données (Firebase ou démonstration) ============================== */
 var CLIENT_ID=Math.random().toString(36).slice(2,10);
-var DEMO=!firebaseConfig||!firebaseConfig.apiKey||/REMPLACER/i.test(firebaseConfig.apiKey);
+var DEMO=!firebaseConfig||!firebaseConfig.apiKey||!TEACHER_EMAIL||/REMPLACER/i.test(firebaseConfig.apiKey);
 function normMat(s){return String(s||'').toUpperCase().replace(/\s+/g,'')}
 function buildMat(code,num){return code+pad(num,2)}
 function matEmail(m){return m.toLowerCase()+'@eleves.logisim.example'}
@@ -1212,7 +1209,7 @@ window.addEventListener('pagehide',function(){if(saveT)flush()});
 (async function start(){
   app().innerHTML='<p style="padding:24px" class="muted">Chargement…</p>';
   try{Backend=DEMO?demoBackend():await fbBackend()}
-  catch(e){app().innerHTML='<div style="padding:24px;max-width:560px"><div class="msg err">Impossible de charger Firebase : '+esc(e.message)+'. Vérifie la connexion et la configuration au début de index.html.</div></div>';return}
+  catch(e){app().innerHTML='<div style="padding:24px;max-width:560px"><div class="msg err">Impossible de charger Firebase : '+esc(e.message)+'. Vérifie la connexion et le fichier logisim-config.json.</div></div>';return}
   var r=null;try{r=await Backend.restore()}catch(e){}
   if(r&&r.role==='teacher'){S.mode='teacher';renderApp();loadStudents()}
   else if(r&&r.role==='student'){S.mode='student';try{await openBase(r.uid,r.profile,false)}catch(e){renderLogin()}}
