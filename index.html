@@ -180,6 +180,7 @@ table.t{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
 .mview{padding:18px 22px;display:grid;gap:14px;align-content:start;min-width:0}
 .mview .mh{display:grid;gap:4px;border-bottom:1px solid var(--line2);padding-bottom:12px}
 .back{display:none}
+.back.always{display:inline-flex}
 .doc{background:#fff;color:#111;border:1px solid var(--line);border-radius:4px;padding:24px clamp(14px,3vw,30px);display:grid;gap:14px;font-size:13px}
 .doc .t th{background:#eef0f3;color:#3a4453;border-bottom:1px solid #c9ced6}
 .doc .t td{border-bottom:1px solid #dfe3e8}
@@ -866,7 +867,7 @@ function viewMail(){
   var db=S.db,f=S.mailFolder;
   if(S.composing){
     var sups=allSuppliers().slice().sort(function(a,b){return a.brand<b.brand?-1:1});
-    var composer='<div class="mview"><button class="btn sm back" data-act="compose-cancel">← Retour</button><div class="mh"><h2>Nouveau message</h2></div>'+
+    var composer='<div class="mview"><button class="btn sm back always" data-act="compose-cancel">← Retour</button><div class="mh"><h2>Nouveau message</h2></div>'+
      '<form id="compose-form"><div class="field"><label for="compose-to">Destinataire (fournisseur)</label><select id="compose-to" required><option value="">Choisir…</option>'+sups.map(function(s){return '<option value="'+s.id+'">'+esc(s.brand)+' — '+esc(s.name)+'</option>'}).join('')+'</select></div>'+
      '<div class="field"><label for="compose-subj">Objet</label><input id="compose-subj" type="text" value="Commande de réapprovisionnement"></div>'+
      '<div class="field"><label for="compose-body">Message</label><textarea id="compose-body" rows="8" placeholder="Précise, pour chaque référence, sa quantité (ex. '+(VARIANTS[0]?VARIANTS[0].sku:'REF')+' : 12 '+V().unitPl+')."></textarea></div>'+
