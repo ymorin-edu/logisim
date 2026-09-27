@@ -301,16 +301,16 @@ var ZONES={Running:'A',Lifestyle:'B',Skate:'C',Confort:'D',Bottes:'E'};
 var SHIP={COL:['Colissimo Domicile',4.9],CHR:['Chronopost Express',9.9],REL:['Point Relais',3.9]};
 
 var SUPPLIERS=[
- {id:'F001',brand:'Nike',name:'Nike France, service revendeurs',adr:'Zone d\'activités Paris Nord 2',cp:'95700',ville:'Roissy-en-France',contact:'Julien Marchetti',tel:'01 48 17 20 10',email:'commandes@nike-pro.example',delai:3,franco:1500,pay:'45 jours fin de mois'},
- {id:'F002',brand:'adidas',name:'adidas France, distribution partenaires',adr:'4 rue de l\'Industrie',cp:'67870',ville:'Landersheim',contact:'Sabine Kessler',tel:'03 88 59 40 22',email:'partenaires@adidas-pro.example',delai:4,franco:1200,pay:'60 jours net'},
- {id:'F003',brand:'Puma',name:'Puma France, ventes professionnelles',adr:'18 avenue du Rhin',cp:'67000',ville:'Strasbourg',contact:'Marc Oberlé',tel:'03 88 22 71 05',email:'b2b@puma-pro.example',delai:4,franco:1000,pay:'45 jours net'},
- {id:'F004',brand:'New Balance',name:'New Balance France, comptes clés',adr:'9 rue des Frères Lumière',cp:'69800',ville:'Saint-Priest',contact:'Élise Fontaine',tel:'04 72 23 18 40',email:'commandes@newbalance-pro.example',delai:5,franco:1500,pay:'30 jours fin de mois'},
- {id:'F005',brand:'Converse',name:'Converse Europe, service commandes',adr:'Tour Ariane, 5 place de la Pyramide',cp:'92800',ville:'Puteaux',contact:'Damien Roche',tel:'01 41 02 36 90',email:'orders@converse-pro.example',delai:6,franco:800,pay:'30 jours net'},
- {id:'F006',brand:'Vans',name:'Vans Europe, plateforme revendeurs',adr:'Parc logistique de la Haute Borne',cp:'59650',ville:'Villeneuve-d\'Ascq',contact:'Lucie Vandenberghe',tel:'03 20 61 44 18',email:'dealers@vans-pro.example',delai:5,franco:800,pay:'45 jours fin de mois'},
- {id:'F007',brand:'ASICS',name:'ASICS France, service clients pro',adr:'2 quai du Point du Jour',cp:'92100',ville:'Boulogne-Billancourt',contact:'Karim Benali',tel:'01 55 20 63 27',email:'pro@asics-pro.example',delai:4,franco:1000,pay:'30 jours fin de mois'},
- {id:'F008',brand:'Reebok',name:'Reebok France, ventes distributeurs',adr:'27 rue du Berthelot',cp:'69200',ville:'Vénissieux',contact:'Nadia Perrin',tel:'04 78 70 52 11',email:'distri@reebok-pro.example',delai:5,franco:700,pay:'45 jours net'},
- {id:'F009',brand:'Skechers',name:'Skechers France, direction commerciale',adr:'Parc d\'affaires du Val d\'Europe',cp:'77700',ville:'Chessy',contact:'Thomas Vidal',tel:'01 60 43 88 02',email:'commercial@skechers-pro.example',delai:3,franco:600,pay:'30 jours net'},
- {id:'F010',brand:'Timberland',name:'Timberland Europe, service revendeurs',adr:'11 rue de la Plaine',cp:'69680',ville:'Chassieu',contact:'Aurélie Gomez',tel:'04 72 79 30 66',email:'retailers@timberland-pro.example',delai:6,franco:1000,pay:'60 jours fin de mois'}
+ {id:'F001',brand:'Nike',name:'Nike France, service revendeurs',adr:'Zone d\'activités Paris Nord 2',cp:'95700',ville:'Roissy-en-France',contact:'Julien Marchetti',tel:'01 48 17 20 10',email:'commandes@nike-pro.example',delai:3,franco:1500,pay:'45 jours fin de mois',moq:24},
+ {id:'F002',brand:'adidas',name:'adidas France, distribution partenaires',adr:'4 rue de l\'Industrie',cp:'67870',ville:'Landersheim',contact:'Sabine Kessler',tel:'03 88 59 40 22',email:'partenaires@adidas-pro.example',delai:4,franco:1200,pay:'60 jours net',moq:20},
+ {id:'F003',brand:'Puma',name:'Puma France, ventes professionnelles',adr:'18 avenue du Rhin',cp:'67000',ville:'Strasbourg',contact:'Marc Oberlé',tel:'03 88 22 71 05',email:'b2b@puma-pro.example',delai:4,franco:1000,pay:'45 jours net',moq:20},
+ {id:'F004',brand:'New Balance',name:'New Balance France, comptes clés',adr:'9 rue des Frères Lumière',cp:'69800',ville:'Saint-Priest',contact:'Élise Fontaine',tel:'04 72 23 18 40',email:'commandes@newbalance-pro.example',delai:5,franco:1500,pay:'30 jours fin de mois',moq:24},
+ {id:'F005',brand:'Converse',name:'Converse Europe, service commandes',adr:'Tour Ariane, 5 place de la Pyramide',cp:'92800',ville:'Puteaux',contact:'Damien Roche',tel:'01 41 02 36 90',email:'orders@converse-pro.example',delai:6,franco:800,pay:'30 jours net',moq:16},
+ {id:'F006',brand:'Vans',name:'Vans Europe, plateforme revendeurs',adr:'Parc logistique de la Haute Borne',cp:'59650',ville:'Villeneuve-d\'Ascq',contact:'Lucie Vandenberghe',tel:'03 20 61 44 18',email:'dealers@vans-pro.example',delai:5,franco:800,pay:'45 jours fin de mois',moq:16},
+ {id:'F007',brand:'ASICS',name:'ASICS France, service clients pro',adr:'2 quai du Point du Jour',cp:'92100',ville:'Boulogne-Billancourt',contact:'Karim Benali',tel:'01 55 20 63 27',email:'pro@asics-pro.example',delai:4,franco:1000,pay:'30 jours fin de mois',moq:20},
+ {id:'F008',brand:'Reebok',name:'Reebok France, ventes distributeurs',adr:'27 rue du Berthelot',cp:'69200',ville:'Vénissieux',contact:'Nadia Perrin',tel:'04 78 70 52 11',email:'distri@reebok-pro.example',delai:5,franco:700,pay:'45 jours net',moq:16},
+ {id:'F009',brand:'Skechers',name:'Skechers France, direction commerciale',adr:'Parc d\'affaires du Val d\'Europe',cp:'77700',ville:'Chessy',contact:'Thomas Vidal',tel:'01 60 43 88 02',email:'commercial@skechers-pro.example',delai:3,franco:600,pay:'30 jours net',moq:12},
+ {id:'F010',brand:'Timberland',name:'Timberland Europe, service revendeurs',adr:'11 rue de la Plaine',cp:'69680',ville:'Chassieu',contact:'Aurélie Gomez',tel:'04 72 79 30 66',email:'retailers@timberland-pro.example',delai:6,franco:1000,pay:'60 jours fin de mois',moq:24}
 ];
 var SUP_BY_ID={};SUPPLIERS.forEach(function(s){SUP_BY_ID[s.id]=s});
 
@@ -343,6 +343,7 @@ var MODELS=[],MM={},VARIANTS=[],VM={};
   MODELS_RAW.forEach(function(a,i){
     var z=ZONES[a[3]];aisle[z]=(aisle[z]||0)+1;
     var m={ref:a[0],brand:a[1],name:a[2],cat:a[3],price:a[4],cost:a[5],colors:a[6],s0:a[7][0],s1:a[7][1],sup:a[8],desc:a[9],min:4+Math.floor(r()*4),zone:z,aisle:aisle[z]};
+    m.max=m.min+8; /* stock maximum (cible de réapprovisionnement) par référence : ne consomme pas de tirage aléatoire pour ne pas décaler les stocks déjà fixés */
     m.sizes=[];for(var s=m.s0;s<=m.s1;s++)m.sizes.push(s);
     m.loc={};m.colors.forEach(function(c,ci){m.loc[c]=z+'-'+pad(m.aisle,2)+'-'+(ci+1)});
     MODELS.push(m);MM[m.ref]=m;
@@ -527,7 +528,7 @@ function demoBackend(){
 }
 
 /* ============================== Base de l'élève ============================== */
-var S={user:null,uid:null,org:'p42',db:null,rev:0,lastJson:'',sync:'ok',mode:null,view:false,route:{v:'home'},mailSel:null,mailFolder:'in',tab:{},cons:[],hist:[],hi:0,tord:null,T:null,unwatch:[],wrongGuess:{},wrongPrep:{},stockUnlocked:false,stockCodeErr:''};
+var S={user:null,uid:null,org:'p42',db:null,rev:0,lastJson:'',sync:'ok',mode:null,view:false,route:{v:'home'},mailSel:null,mailFolder:'in',composing:false,tab:{},cons:[],hist:[],hi:0,tord:null,T:null,unwatch:[],wrongGuess:{},wrongPrep:{},stockUnlocked:false,stockCodeErr:''};
 
 function newDB(u){
   var now=Date.now(),stock={};
@@ -573,7 +574,7 @@ async function openBase(uid,profile,viewing){
   if(fresh)db=newDB(profile);
   stopWatch();
   S.uid=uid;S.user=profile;S.org=org;S.db=db;S.rev=(st&&st.rev)||0;S.lastJson=st&&!fresh?st.json:'';S.view=!!viewing;S.sync='ok';
-  S.route={v:'home'};S.mailSel=null;S.mailFolder='in';S.tab={};S.wrongGuess={};S.wrongPrep={};S.stockUnlocked=false;S.stockCodeErr='';
+  S.route={v:'home'};S.mailSel=null;S.mailFolder='in';S.composing=false;S.tab={};S.wrongGuess={};S.wrongPrep={};S.stockUnlocked=false;S.stockCodeErr='';
   S.cons=[{cmd:null,html:'<span class="dim">Console LogiSim. Tape <b>.help</b> pour la liste des commandes.</span>'}];
   if(fresh)saveDB();
   if(!viewing){
@@ -607,14 +608,16 @@ function orderTotals(o){
 function ostatus(o){
   if(!o.prep)return ['À préparer','warn'];
   if(o.prep.validated)return o.prep.complete?['Préparée','ok']:['Préparée (reliquat)','info'];
-  var any=false;for(var k in o.prep.rows){if(o.prep.rows[k].checked)any=true}
+  var any=false;for(var k in o.prep.rows){var r=o.prep.rows[k];if(r.seen!==''||r.loc||r.qty!==''||r.status)any=true}
   return any?['En cours','info']:['À préparer','warn'];
 }
 function ensurePrep(o){
   if(o.prep)return;
   o.prep={rows:{},doc:false,validated:false};
-  o.lines.forEach(function(l){o.prep.rows[l.sku]={checked:false,seen:null,qty:0,prepOk:false}});
+  o.lines.forEach(function(l){o.prep.rows[l.sku]={seen:'',loc:'',qty:'',status:''}});
 }
+function rowFilled(r){return r.seen!==''&&r.seen!=null&&!!(r.loc&&r.loc.trim())&&r.qty!==''&&r.qty!=null&&!!r.status}
+function statusLabel(s){return s==='ok'?'<span class="pill ok">Complet</span>':s==='warn'?'<span class="pill warn">Partiel</span>':s==='crit'?'<span class="pill crit">Rupture</span>':'<span class="muted">—</span>'}
 function orderTable(o,withPrice){
   var h='<div class="scroll"><table class="t"><thead><tr><th>Réf.</th><th>Désignation</th><th>Couleur</th><th class="r">Taille</th><th class="r">Qté</th>'+(withPrice?'<th class="r">PU TTC</th><th class="r">Total</th>':'')+'</tr></thead><tbody>';
   o.lines.forEach(function(l){var v=VM[l.sku];h+='<tr><td class="ref">'+l.sku+'</td><td>'+esc(label(v))+'</td><td>'+swatch(v.color)+'</td><td class="r">'+v.size+'</td><td class="r">'+l.qty+'</td>'+(withPrice?'<td class="r">'+eur(v.model.price)+'</td><td class="r">'+eur(v.model.price*l.qty)+'</td>':'')+'</tr>'});
@@ -714,6 +717,16 @@ function viewHome(){
 /* ---- Messagerie ---- */
 function viewMail(){
   var db=S.db,f=S.mailFolder;
+  if(S.composing){
+    var sups=allSuppliers().slice().sort(function(a,b){return a.brand<b.brand?-1:1});
+    var composer='<div class="mview"><button class="btn sm back" data-act="compose-cancel">← Retour</button><div class="mh"><h2>Nouveau message</h2></div>'+
+     '<form id="compose-form"><div class="field"><label for="compose-to">Destinataire (fournisseur)</label><select id="compose-to" required><option value="">Choisir…</option>'+sups.map(function(s){return '<option value="'+s.id+'">'+esc(s.brand)+' — '+esc(s.name)+'</option>'}).join('')+'</select></div>'+
+     '<div class="field"><label for="compose-subj">Objet</label><input id="compose-subj" type="text" value="Commande de réapprovisionnement"></div>'+
+     '<div class="field"><label for="compose-body">Message</label><textarea id="compose-body" rows="8" placeholder="Précise, pour chaque référence, sa quantité (ex. PM-SUE-NR-40 : 12 paires)."></textarea></div>'+
+     '<div><button class="btn primary" type="submit">Envoyer</button></div></form></div>';
+    return '<div class="page-head"><div><h1>Messagerie</h1><p>Adresse : '+esc(norm(S.user.prenom).replace(/ /g,''))+'@spartoo.example</p></div></div>'+
+     '<div class="panel"><div class="mailbox sel"><div class="mlist"></div>'+composer+'</div></div>';
+  }
   var list=db.mails.filter(function(m){return m.folder===f}).sort(function(a,b){return b.ts-a.ts});
   var sel=list.filter(function(m){return m.id===S.mailSel})[0];
   var items=list.map(function(m){
@@ -734,7 +747,9 @@ function viewMail(){
      '<form id="reply-form" hidden><div class="field"><label for="reply-t">Votre réponse</label><textarea id="reply-t"></textarea></div><div><button class="btn primary" type="submit">Envoyer</button></div></form></div>';
   }
   return '<div class="page-head"><div><h1>Messagerie</h1><p>Adresse : '+esc(norm(S.user.prenom).replace(/ /g,''))+'@spartoo.example</p></div></div>'+
-   '<div class="panel"><div class="tabs"><button class="tab'+(f==='in'?' on':'')+'" data-act="mail-folder" data-f="in">Réception</button><button class="tab'+(f==='out'?' on':'')+'" data-act="mail-folder" data-f="out">Envoyés</button></div>'+
+   '<div class="panel"><div class="tabs" style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px"><div style="display:flex">'+
+   '<button class="tab'+(f==='in'?' on':'')+'" data-act="mail-folder" data-f="in">Réception</button><button class="tab'+(f==='out'?' on':'')+'" data-act="mail-folder" data-f="out">Envoyés</button></div>'+
+   '<button class="btn sm primary" data-act="compose-new">Nouveau message</button></div>'+
    '<div class="mailbox'+(sel?' sel':'')+'"><div class="mlist">'+items+'</div>'+reader+'</div></div>';
 }
 function mailOpen(id){
@@ -755,6 +770,36 @@ function sendReply(){
   addMail(S.db,{folder:'out',ts:Date.now(),from:S.user.prenom,fromMail:'',to:m.from,toMail:m.fromMail,subject:'RE : '+m.subject.replace(/^RE : /,''),kind:'text',text:t,read:true});
   saveDB();S.mailFolder='out';S.mailSel=null;renderApp();
 }
+/* Nouveau message vers un fournisseur (commande de réapprovisionnement) : l'élève rédige librement,
+   l'outil retrouve dans le texte les références et quantités citées et répond automatiquement en
+   rappelant le minimum de commande du fournisseur (respecté ou non). */
+var SKU_RE=/\b([A-Z]{2,3}-[A-Z0-9]+-[A-Z]{2}-\d{2})\b[^0-9]{0,20}?(\d{1,4})/g;
+function parseSkuQty(text,supId){
+  var out=[],m;SKU_RE.lastIndex=0;
+  while((m=SKU_RE.exec(text))){
+    var sku=m[1].toUpperCase(),qty=parseInt(m[2],10),v=VM[sku];
+    if(v&&v.model.sup===supId)out.push({sku:sku,qty:qty,v:v})
+  }
+  return out;
+}
+function sendSupplierOrder(){
+  var selId=$('#compose-to').value,sup=SUP_BY_ID[selId]||(S.db.suppliers||[]).filter(function(s){return s.id===selId})[0];
+  if(!sup){var b=$('#compose-form');return}
+  var subj=($('#compose-subj').value||'').trim()||'Commande de réapprovisionnement';
+  var body=($('#compose-body').value||'').trim();if(!body)return;
+  addMail(S.db,{folder:'out',ts:Date.now(),from:S.user.prenom,fromMail:'',to:sup.contact,toMail:sup.email,subject:subj,kind:'text',text:body,read:true});
+  var found=parseSkuQty(body,sup.id),total=0;found.forEach(function(x){total+=x.qty});
+  var reply;
+  if(!found.length){
+    reply="Bonjour,\n\nNous ne parvenons pas à identifier, dans votre message, de référence "+sup.brand+" accompagnée d'une quantité claire. Merci de préciser pour chaque article sa référence exacte et la quantité souhaitée.\n\nCordialement,\n"+sup.contact+"\n"+sup.name;
+  }else if(total<(sup.moq||0)){
+    reply="Bonjour,\n\nNous avons bien reçu votre demande, pour un total de "+total+" paire"+(total>1?'s':'')+". Pour rappel, notre minimum de commande est de "+sup.moq+" paires : merci de compléter votre commande avant que nous puissions la traiter.\n\nCordialement,\n"+sup.contact+"\n"+sup.name;
+  }else{
+    reply="Bonjour,\n\nCommande bien reçue, pour un total de "+total+" paires : le minimum de commande ("+sup.moq+" paires) est respecté. Livraison prévue sous "+sup.delai+" jours.\n\nCordialement,\n"+sup.contact+"\n"+sup.name;
+  }
+  addMail(S.db,{folder:'in',ts:Date.now()+1000,from:sup.contact,fromMail:sup.email,to:S.user.prenom,subject:'RE : '+subj,kind:'text',text:reply,read:false});
+  saveDB();S.composing=false;S.mailFolder='in';S.mailSel=null;renderApp();
+}
 
 /* ---- Commandes ---- */
 function viewOrders(){
@@ -770,26 +815,20 @@ function viewOrder(){
   var o=getOrder(S.route.no);if(!o)return viewOrders();
   ensurePrep(o);
   var c=CM[o.customerId],t=orderTotals(o),s=ostatus(o),p=o.prep,locked=p.validated;
-  var allPrepOk=o.lines.every(function(l){return p.rows[l.sku].prepOk});
+  var allFilled=o.lines.every(function(l){return rowFilled(p.rows[l.sku])});
   var statusOpts=[['','Choisir…'],['ok','Complet'],['warn','Partiel'],['crit','Rupture']];
   var rows=o.lines.map(function(l){
     var v=VM[l.sku],r=p.rows[l.sku],stockCell,locCell,prepCell,statusCell;
-    if(!r.checked){
-      stockCell=locked?'—':'<form class="vform" data-act="verify-stock" data-sku="'+l.sku+'" style="display:flex;gap:4px;justify-content:flex-end"><input type="number" min="0" required id="vin-'+l.sku+'" value="'+(S.wrongGuess[l.sku]!=null?S.wrongGuess[l.sku]:'')+'" style="width:64px" aria-label="Quantité trouvée pour '+l.sku+'"><button class="btn sm" type="submit">Vérifier</button></form>';
-      locCell='—';
-      prepCell='—';
-      statusCell=S.wrongGuess[l.sku]!=null?'<span class="pill crit">Incorrect, réessaie</span>':'<span class="muted">—</span>';
-    }else if(!r.prepOk&&!locked){
-      var wp=S.wrongPrep[l.sku]||{};
-      stockCell='<b class="mono">'+r.seen+'</b>';
-      locCell='<input type="text" id="plin-'+l.sku+'" value="'+esc(wp.loc!=null?wp.loc:'')+'" placeholder="ex. B-01-1" style="width:110px" aria-label="Emplacement pour '+l.sku+'">';
-      prepCell='<input type="number" min="0" id="pqin-'+l.sku+'" value="'+(wp.qty!=null?wp.qty:'')+'" style="width:64px" aria-label="Quantité à préparer pour '+l.sku+'">';
-      statusCell='<div style="display:flex;gap:4px;justify-content:flex-end;align-items:center"><select id="psel-'+l.sku+'" aria-label="Statut pour '+l.sku+'">'+statusOpts.map(function(op){return '<option value="'+op[0]+'"'+((wp.sel||'')===op[0]?' selected':'')+'>'+op[1]+'</option>'}).join('')+'</select><button class="btn sm" type="button" data-act="verify-prep" data-sku="'+l.sku+'">Vérifier</button></div>'+(wp.msg?'<div class="small" style="color:var(--crit);text-align:right;margin-top:4px">'+esc(wp.msg)+'</div>':'');
+    if(locked){
+      stockCell='<b class="mono">'+(r.seen===''?'—':r.seen)+'</b>';
+      locCell=r.loc||'—';
+      prepCell=r.qty===''?'—':r.qty;
+      statusCell=statusLabel(r.status);
     }else{
-      stockCell=locked?'—':'<b class="mono">'+r.seen+'</b>';
-      locCell=locked?'—':v.loc;
-      prepCell=r.qty;
-      statusCell=r.qty>=l.qty?'<span class="pill ok">Complet</span>':(r.qty===0?'<span class="pill crit">Rupture</span>':'<span class="pill warn">Partiel</span>');
+      stockCell='<input type="number" min="0" data-prep-field="seen" data-sku="'+l.sku+'" value="'+(r.seen===''?'':r.seen)+'" style="width:64px" aria-label="Stock trouvé pour '+l.sku+'">';
+      locCell='<input type="text" data-prep-field="loc" data-sku="'+l.sku+'" value="'+esc(r.loc)+'" placeholder="ex. B-01-1" style="width:110px" aria-label="Emplacement pour '+l.sku+'">';
+      prepCell='<input type="number" min="0" data-prep-field="qty" data-sku="'+l.sku+'" value="'+(r.qty===''?'':r.qty)+'" style="width:64px" aria-label="Quantité à préparer pour '+l.sku+'">';
+      statusCell='<select data-prep-field="status" data-sku="'+l.sku+'" aria-label="Statut pour '+l.sku+'">'+statusOpts.map(function(op){return '<option value="'+op[0]+'"'+((r.status||'')===op[0]?' selected':'')+'>'+op[1]+'</option>'}).join('')+'</select>';
     }
     return '<tr><td class="ref">'+l.sku+'</td><td>'+esc(label(v))+'<div class="small muted">'+COLORS[v.color][0]+' · T.'+v.size+'</div></td><td class="r">'+l.qty+'</td>'+
      '<td class="r">'+stockCell+'</td>'+
@@ -799,46 +838,22 @@ function viewOrder(){
   var doc=p.doc?bpDoc(o):'';
   return '<div class="page-head"><div><button class="btn sm ghost" data-act="nav" data-v="orders" style="padding-left:0">← Commandes</button><h1>Commande <span class="mono">'+o.no+'</span> <span class="pill '+s[1]+'" style="vertical-align:3px">'+s[0]+'</span></h1></div></div>'+
    '<div class="panel"><div class="panel-b"><dl class="dl"><dt>Client</dt><dd>'+esc(c.prenom+' '+c.nom)+' <span class="mono small muted">'+c.id+'</span></dd><dt>Adresse</dt><dd>'+esc(c.adr)+', '+c.cp+' '+esc(c.ville)+'</dd><dt>Livraison</dt><dd>'+SHIP[o.ship][0]+'</dd><dt>Date</dt><dd>'+fdt(o.date)+'</dd><dt>Montant</dt><dd>'+eur(t.total)+' TTC, '+t.pairs+' paire'+(t.pairs>1?'s':'')+'</dd></dl></div></div>'+
-   '<div class="panel"><div class="panel-h"><h2>Contrôle du stock</h2><span class="small muted">Trouve le stock réel de chaque référence avec la console (<span class="mono">.getstock REF</span>) et son emplacement (<span class="mono">.getlocation REF</span>), saisis la quantité trouvée. Complète ensuite l\'emplacement, décide de la quantité à préparer et du statut de la ligne (Complet, Partiel ou Rupture), puis vérifie ta réponse.</span></div>'+
+   '<div class="panel"><div class="panel-h"><h2>Contrôle du stock</h2><span class="small muted">Trouve le stock réel de chaque référence avec la console (<span class="mono">.getstock REF</span>) et son emplacement (<span class="mono">.getlocation REF</span>). Remplis pour chaque ligne le stock trouvé, l\'emplacement, la quantité à préparer et le statut (Complet, Partiel ou Rupture).</span></div>'+
    '<div class="scroll"><table class="t lines-t"><thead><tr><th>Réf.</th><th>Article</th><th class="r">Commandé</th><th class="r">Stock trouvé</th><th>Emplacement</th><th class="r">À préparer</th><th>Statut</th></tr></thead><tbody>'+rows+'</tbody></table></div>'+
-   '<div class="panel-b" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button class="btn primary" data-act="gen-doc"'+(allPrepOk?'':' disabled')+'>'+(p.doc?'Régénérer le bon de préparation':'Éditer le bon de préparation')+'</button>'+
-   (!allPrepOk?'<span class="small muted">Contrôle et valide toutes les lignes pour continuer.</span>':'')+'</div></div>'+
+   '<div class="panel-b" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button class="btn primary" data-act="gen-doc"'+(allFilled?'':' disabled')+'>'+(p.doc?'Régénérer le bon de préparation':'Éditer le bon de préparation')+'</button>'+
+   (!allFilled?'<span class="small muted">Complète toutes les lignes pour continuer.</span>':'')+'</div></div>'+
    doc;
 }
-function verifyStock(sku){
-  var o=getOrder(S.route.no),r=o.prep.rows[sku];
-  var input=$('#vin-'+CSS.escape(sku)),val=parseInt(input?input.value:'',10);
-  if(isNaN(val)||val<0){S.wrongGuess[sku]=input?input.value:'';renderMain();focusVerify(sku);return}
-  var real=stockOf(sku);
-  if(val===real){
-    delete S.wrongGuess[sku];r.checked=true;r.seen=real;saveDB();renderApp();
-  }else{
-    S.wrongGuess[sku]=val;renderMain();focusVerify(sku);
-  }
-}
-function focusVerify(sku){var i=$('#vin-'+CSS.escape(sku));if(i){i.focus();i.select()}}
 function normLoc(s){return String(s||'').trim().toUpperCase().replace(/\s+/g,'')}
-function verifyPrep(sku){
-  var o=getOrder(S.route.no),r=o.prep.rows[sku],l=o.lines.filter(function(x){return x.sku===sku})[0],v=VM[sku];
-  var lin=$('#plin-'+CSS.escape(sku)),qin=$('#pqin-'+CSS.escape(sku)),sel=$('#psel-'+CSS.escape(sku));
-  var lraw=lin?lin.value:'',qraw=qin?qin.value:'',qval=parseInt(qraw,10),sval=sel?sel.value:'';
-  if(!lraw.trim()){S.wrongPrep[sku]={loc:lraw,qty:qraw,sel:sval,msg:'Indique l\'emplacement (trouve-le avec .getlocation '+sku+').'};renderMain();focusLoc(sku);return}
-  if(!sval){S.wrongPrep[sku]={loc:lraw,qty:qraw,sel:sval,msg:'Choisis un statut dans la liste.'};renderMain();return}
-  if(qraw===''||isNaN(qval)||qval<0){S.wrongPrep[sku]={loc:lraw,qty:qraw,sel:sval,msg:'Indique une quantité à préparer (nombre entier positif ou 0).'};renderMain();focusPrep(sku);return}
-  var correctQty=Math.min(l.qty,r.seen),correctStatus=r.seen>=l.qty?'ok':(r.seen===0?'crit':'warn'),locOk=normLoc(lraw)===normLoc(v.loc);
-  if(locOk&&qval===correctQty&&sval===correctStatus){
-    delete S.wrongPrep[sku];r.qty=qval;r.prepOk=true;o.prep.doc=false;saveDB();renderApp();
-  }else{
-    var msg=!locOk?'Emplacement incorrect. Vérifie avec .getlocation '+sku+'.':'Quantité ou statut incorrect. Compare le stock trouvé ('+r.seen+') à la quantité commandée ('+l.qty+').';
-    S.wrongPrep[sku]={loc:lraw,qty:qraw,sel:sval,msg:msg};renderMain();
-    if(!locOk)focusLoc(sku);else focusPrep(sku);
-  }
-}
-function focusPrep(sku){var i=$('#pqin-'+CSS.escape(sku));if(i){i.focus();i.select()}}
-function focusLoc(sku){var i=$('#plin-'+CSS.escape(sku));if(i){i.focus();i.select()}}
-function setQty(sku,val){
-  var o=getOrder(S.route.no),r=o.prep.rows[sku],l=o.lines.filter(function(x){return x.sku===sku})[0];
-  var q=Math.max(0,Math.min(parseInt(val,10)||0,l.qty,r.seen));r.qty=q;o.prep.doc=false;saveDB();renderApp();
+/* Plus d'étape de vérification ligne par ligne : l'élève remplit librement le stock trouvé, l'emplacement,
+   la quantité à préparer et le statut. La justesse de ces valeurs n'est plus contrôlée dans l'appli — elle
+   est vérifiée par l'enseignant dans « Suivi de l'exercice » une fois la préparation validée. */
+function setPrepField(sku,field,val){
+  var o=getOrder(S.route.no);if(!o)return;var r=o.prep.rows[sku];if(!r)return;
+  if(field==='seen'||field==='qty'){var n=parseInt(val,10);r[field]=isNaN(n)?'':Math.max(0,n)}
+  else if(field==='loc'){r.loc=val}
+  else if(field==='status'){r.status=val}
+  o.prep.doc=false;saveDB();renderApp();
 }
 function bpDoc(o){
   var p=o.prep,c=CM[o.customerId];
@@ -858,7 +873,7 @@ function genDoc(){var o=getOrder(S.route.no);o.prep.doc=true;saveDB();renderApp(
 function validateBP(){
   var o=getOrder(S.route.no),p=o.prep,errs=[];
   o.lines.forEach(function(l){var r=p.rows[l.sku];if(r.qty>stockOf(l.sku))errs.push(l.sku)});
-  if(errs.length){var b=$('#copy-msg');if(b)b.innerHTML='<span class="msg err">Le stock a changé pour : '+errs.join(', ')+'. Contrôle de nouveau ces lignes.</span>';errs.forEach(function(k){p.rows[k].checked=false;p.rows[k].prepOk=false});p.doc=false;saveDB();return renderApp()}
+  if(errs.length){var b=$('#copy-msg');if(b)b.innerHTML='<span class="msg err">Le stock a changé pour : '+errs.join(', ')+'. Remplis de nouveau ces lignes.</span>';errs.forEach(function(k){p.rows[k]={seen:'',loc:'',qty:'',status:''}});p.doc=false;saveDB();return renderApp()}
   var complete=true;
   o.lines.forEach(function(l){var r=p.rows[l.sku];if(r.qty>0){S.db.stock[l.sku]-=r.qty;logMove(l.sku,'Sortie : préparation',-r.qty,'BP-'+o.no.replace('CMD-',''))}if(r.qty<l.qty)complete=false});
   p.validated=true;p.complete=complete;p.at=Date.now();saveDB();renderApp();
@@ -904,7 +919,7 @@ function viewProduct(){
    '<dt>Référence modèle</dt><dd class="mono">'+m.ref+'</dd><dt>Marque</dt><dd>'+m.brand+'</dd>'+
    '<dt>Prix de vente TTC</dt><dd><b class="mono">'+eur(m.price)+'</b></dd><dt>Prix de vente HT</dt><dd class="mono">'+eur(ht)+'</dd>'+
    '<dt>Prix d\'achat HT</dt><dd class="mono">'+eur(m.cost)+'</dd><dt>Marge brute</dt><dd class="mono">'+eur(ht-m.cost)+' ('+Math.round((ht-m.cost)/ht*100)+' %)</dd>'+
-   '<dt>Tailles</dt><dd>'+m.s0+' à '+m.s1+'</dd><dt>Seuil d\'alerte</dt><dd>'+m.min+' paires par référence</dd>'+
+   '<dt>Tailles</dt><dd>'+m.s0+' à '+m.s1+'</dd><dt>Seuil d\'alerte</dt><dd>'+m.min+' paires par référence</dd><dt>Stock maximum</dt><dd>'+m.max+' paires par référence</dd>'+
    '<dt>Fournisseur</dt><dd>'+esc(sp.name)+' <span class="mono small muted">'+sp.id+'</span><br><span class="small muted">Délai '+sp.delai+' jours · franco '+eur(sp.franco)+'</span></dd></dl></div></div></div>';
 }
 
@@ -961,7 +976,7 @@ function updateTiers(){
     h='<table class="t"><thead><tr><th>Code</th><th>Nom</th><th>E-mail</th><th>Téléphone</th><th>Adresse</th><th>Client depuis</th><th class="r">Commandes</th></tr></thead><tbody>'+r.map(function(c){return '<tr><td class="ref">'+c.id+'</td><td>'+esc(c.prenom+' '+c.nom)+'</td><td class="ref">'+c.email+'</td><td class="ref">'+c.tel+'</td><td>'+esc(c.adr)+', '+c.cp+' '+esc(c.ville)+'</td><td>'+fdate(c.since)+'</td><td class="r">'+c.nb+'</td></tr>'}).join('')+'</tbody></table>';
   }else{
     var f=allSuppliers().filter(function(s){return !q||norm(s.id+' '+s.brand+' '+s.name+' '+s.ville).indexOf(q)>=0});
-    h='<table class="t"><thead><tr><th>Code</th><th>Marque</th><th>Société</th><th>Contact</th><th>Téléphone</th><th>E-mail</th><th>Adresse</th><th class="r">Délai</th><th class="r">Franco</th><th>Paiement</th></tr></thead><tbody>'+f.map(function(s){return '<tr><td class="ref">'+s.id+'</td><td><b>'+s.brand+'</b></td><td>'+esc(s.name)+'</td><td>'+esc(s.contact)+'</td><td class="ref">'+s.tel+'</td><td class="ref">'+s.email+'</td><td>'+esc(s.adr)+', '+s.cp+' '+esc(s.ville)+'</td><td class="r">'+s.delai+' j</td><td class="r">'+eur(s.franco)+'</td><td>'+s.pay+'</td></tr>'}).join('')+'</tbody></table>';
+    h='<table class="t"><thead><tr><th>Code</th><th>Marque</th><th>Société</th><th>Contact</th><th>Téléphone</th><th>E-mail</th><th>Adresse</th><th class="r">Délai</th><th class="r">Franco</th><th class="r">Mini. commande</th><th>Paiement</th></tr></thead><tbody>'+f.map(function(s){return '<tr><td class="ref">'+s.id+'</td><td><b>'+s.brand+'</b></td><td>'+esc(s.name)+'</td><td>'+esc(s.contact)+'</td><td class="ref">'+s.tel+'</td><td class="ref">'+s.email+'</td><td>'+esc(s.adr)+', '+s.cp+' '+esc(s.ville)+'</td><td class="r">'+s.delai+' j</td><td class="r">'+eur(s.franco)+'</td><td class="r">'+(s.moq||'—')+' paires</td><td>'+s.pay+'</td></tr>'}).join('')+'</tbody></table>';
   }
   $('#list').innerHTML='<div class="panel"><div class="scroll">'+h+'</div></div>';
 }
@@ -998,7 +1013,7 @@ var CMDS={
  }],
  getstock:['.getstock <réf>','Stock d\'une référence article ou d\'un modèle',function(a){
    var r=resolveRef(a[0]);
-   if(r.v){var v=r.v,q=stockOf(v.sku);return kv([['Référence','<span class="mono">'+v.sku+'</span>'],['Article',esc(label(v))],['Couleur',COLORS[v.color][0]],['Taille',v.size],['Stock','<b>'+q+'</b> paire'+(q>1?'s':'')],['Seuil',v.model.min],['Emplacement',v.loc],['Statut',stockPill(q,v.model.min)]])}
+   if(r.v){var v=r.v,q=stockOf(v.sku);return kv([['Référence','<span class="mono">'+v.sku+'</span>'],['Article',esc(label(v))],['Couleur',COLORS[v.color][0]],['Taille',v.size],['Stock','<b>'+q+'</b> paire'+(q>1?'s':'')],['Seuil',v.model.min],['Stock maximum',v.model.max],['Emplacement',v.loc],['Statut',stockPill(q,v.model.min)]])}
    if(r.list)return tbl(['Référence','Article','Stock','Statut'],r.list.map(function(v){var q=stockOf(v.sku);return ['<span class="mono">'+v.sku+'</span>',esc(label(v))+' '+COLORS[v.color][0]+' T.'+v.size,'<b>'+q+'</b>',stockPill(q,v.model.min)]}),[2]);
    var m=r.m,tot=modelStock(m);
    return '<div>'+esc(m.brand+' '+m.name)+' : <b>'+tot+'</b> paires au total</div>'+matrix(m);
@@ -1041,7 +1056,7 @@ var CMDS={
    var q=norm(a.join(' '));if(!q)throw new Error('Exemple : .getsupplier nike ou .getsupplier F002');
    var r=allSuppliers().filter(function(s){return norm(s.id+' '+s.brand+' '+s.name).indexOf(q)>=0});
    if(!r.length)throw new Error('Aucun fournisseur trouvé.');
-   return r.map(function(s){return kv([['Code',s.id],['Marque',s.brand],['Société',esc(s.name)],['Contact',esc(s.contact)+' · '+s.tel],['E-mail',s.email],['Adresse',esc(s.adr)+', '+s.cp+' '+esc(s.ville)],['Délai',s.delai+' jours'],['Franco',eur(s.franco)],['Paiement',s.pay]])}).join('<hr style="border:0;border-top:1px solid #3a262a;width:100%">');
+   return r.map(function(s){return kv([['Code',s.id],['Marque',s.brand],['Société',esc(s.name)],['Contact',esc(s.contact)+' · '+s.tel],['E-mail',s.email],['Adresse',esc(s.adr)+', '+s.cp+' '+esc(s.ville)],['Délai',s.delai+' jours'],['Franco',eur(s.franco)],['Minimum de commande',(s.moq||'—')+' paires'],['Paiement',s.pay]])}).join('<hr style="border:0;border-top:1px solid #3a262a;width:100%">');
  }],
  addclient:['.addclient <prénom nom> ; <e-mail> ; <téléphone> ; <adresse> ; <code postal> ; <ville>','Crée un nouveau client particulier',function(a){
    var parts=a.join(' ').split(';').map(function(x){return x.trim()});
@@ -1067,7 +1082,7 @@ var CMDS={
    if(isNaN(franco)||franco<0)throw new Error('Le franco de port doit être un montant en euros (ex. 900).');
    if(!S.db.suppliers)S.db.suppliers=[];
    var id=nextCode(allSuppliers(),'F',3);
-   var sp={id:id,brand:brand,name:name,adr:adr,cp:cp,ville:ville,contact:contact,tel:tel,email:email,delai:delai,franco:franco,pay:pay};
+   var sp={id:id,brand:brand,name:name,adr:adr,cp:cp,ville:ville,contact:contact,tel:tel,email:email,delai:delai,franco:franco,pay:pay,moq:16};
    S.db.suppliers.push(sp);saveDB();
    return '<div class="msg ok" style="margin-bottom:10px">Nouveau fournisseur créé.</div>'+kv([['Code','<b>'+id+'</b>'],['Marque',esc(brand)],['Société',esc(name)],['Contact',esc(contact)+' · '+esc(tel)],['E-mail',esc(email)],['Adresse',esc(adr)+', '+esc(cp)+' '+esc(ville)],['Délai',delai+' jours'],['Franco',eur(franco)],['Paiement',esc(pay)]]);
  }],
@@ -1116,7 +1131,7 @@ function runCmd(text,from){
 
 /* ---- Espace enseignant ---- */
 function tState(){
-  if(!S.T)S.T={tab:'list',students:null,cls:'',msg:'',loading:false,created:null};
+  if(!S.T)S.T={tab:'list',students:null,cls:'',msg:'',loading:false,created:null,track:{},trackLoading:false};
   if(!S.tord)S.tord={cust:'C0007',ship:'COL',lines:[],target:''};
   return S.T;
 }
@@ -1130,8 +1145,8 @@ async function loadStudents(keep){
 function renderTeacher(){
   var T=tState(),st=T.students||[],classes=[];
   st.forEach(function(s){if(classes.indexOf(s.classe)<0)classes.push(s.classe)});
-  var tabs=[['list','Élèves'],['create','Créer une classe'],['send','Envoyer une commande']].map(function(t){return '<button class="tab'+(T.tab===t[0]?' on':'')+'" data-act="t-tab" data-t="'+t[0]+'">'+t[1]+'</button>'}).join('');
-  var body=T.tab==='list'?tList(st,classes):(T.tab==='create'?tCreate():tSend(st,classes));
+  var tabs=[['list','Élèves'],['create','Créer une classe'],['send','Envoyer une commande'],['track','Suivi de l\'exercice']].map(function(t){return '<button class="tab'+(T.tab===t[0]?' on':'')+'" data-act="t-tab" data-t="'+t[0]+'">'+t[1]+'</button>'}).join('');
+  var body=T.tab==='list'?tList(st,classes):(T.tab==='create'?tCreate():(T.tab==='track'?tTrack(st,classes):tSend(st,classes)));
   app().innerHTML='<div style="max-width:1100px;margin:0 auto;padding:24px 16px 48px;display:grid;gap:18px">'+
    '<div class="page-head"><div><div class="wordmark" style="color:var(--ink)">'+logoMark(24,'var(--accent)')+'Logi<span style="color:var(--accent)">Sim</span> <span class="pill info" style="vertical-align:4px">Enseignant</span></div><h1 style="margin-top:6px">Espace enseignant</h1></div><div style="display:flex;gap:8px"><button class="btn" data-act="t-reload">Actualiser</button><button class="btn" data-act="logout">Quitter</button></div></div>'+
    '<div class="tabs">'+tabs+'</div>'+(T.msg?'<div class="msg info">'+T.msg+'</div>':'')+body+'</div>';
@@ -1251,6 +1266,107 @@ async function createClass(){
   renderTeacher();
 }
 async function resetStudent(s){var db=newDB(s);await Backend.putState(s.uid,s.org||'p42',JSON.stringify(db),Date.now(),statsOf(db))}
+/* ---- Suivi de l'exercice de prise en main (vue enseignant) ----
+   Chaque étape sait vérifier, à partir de la base JSON d'un élève, si le travail attendu est fait.
+   D'autres étapes pourront être ajoutées ici au fil de la reprise de l'exercice. */
+function stockOfDb(db,sku){var q=db.stock[sku];return q==null?0:q}
+var STEPS=[
+  {id:'step1',short:'Réponse à Léa Dubois (stock Stan Smith blanches, T.44)',check:function(db){
+    var q=(db.mails||[]).filter(function(m){return m.folder==='in'&&/dubois/i.test(m.from||'')&&/stan smith/i.test(m.subject||'')})[0];
+    if(!q)return {status:'na',detail:''};
+    var replies=(db.mails||[]).filter(function(m){return m.folder==='out'&&norm(m.to||'')===norm(q.from||'')&&norm(m.subject||'').indexOf(norm(q.subject||''))>=0}).sort(function(a,b){return a.ts-b.ts});
+    if(!replies.length)return {status:'pending',detail:''};
+    var reply=replies[replies.length-1],real=stockOfDb(db,'AD-STS-BL-44');
+    var ok=new RegExp('\\b'+real+'\\b').test(reply.text||'');
+    return {status:ok?'ok':'ko',detail:reply.text||'',ts:reply.ts};
+  }},
+  {id:'step2',short:'Commande CMD-048213 préparée et validée',check:function(db){
+    var o=(db.orders||[]).filter(function(x){return x.no==='CMD-048213'})[0];
+    if(!o)return {status:'na',detail:''};
+    if(!o.prep||!o.prep.validated)return {status:'pending',detail:''};
+    /* L'élève ne reçoit plus de retour immédiat pendant l'exercice (pas de bouton « Vérifier ») :
+       la justesse de chaque ligne est calculée ici, une fois la préparation validée, à partir du stock
+       réel reconstitué (stock actuel + quantité déjà sortie pour cette ligne) et de l'emplacement réel. */
+    var lines=o.lines.map(function(l){
+      var r=o.prep.rows[l.sku]||{},qty=(r.qty===''||r.qty==null)?0:r.qty;
+      var real=stockOfDb(db,l.sku)+qty,v=VM[l.sku];
+      var correctQty=Math.min(l.qty,real),correctStatus=real>=l.qty?'ok':(real===0?'crit':'warn');
+      var seenOk=r.seen===real,locOk=normLoc(r.loc)===normLoc(v.loc),qtyOk=r.qty===correctQty,statusOk=r.status===correctStatus;
+      return {sku:l.sku,ok:seenOk&&locOk&&qtyOk&&statusOk,seen:r.seen,real:real,loc:r.loc,realLoc:v.loc,qty:r.qty,correctQty:correctQty,status:r.status,correctStatus:correctStatus};
+    });
+    var allOk=lines.every(function(x){return x.ok});
+    var detailLines=lines.map(function(x){
+      return x.sku+' : '+(x.ok?'correct':'à corriger')+' — stock trouvé '+(x.seen===''?'(vide)':x.seen)+' (réel '+x.real+'), emplacement '+(x.loc||'(vide)')+' (réel '+x.realLoc+'), à préparer '+(x.qty===''?'(vide)':x.qty)+' (attendu '+x.correctQty+'), statut '+(x.status||'(vide)')+' (attendu '+statusLabel(x.correctStatus).replace(/<[^>]+>/g,'')+')';
+    });
+    var detail='Préparation validée le '+fdt(o.prep.at)+' — '+(o.prep.complete?'commande complète':'commande avec reliquat')+'.\n'+detailLines.join('\n');
+    return {status:allOk?'ok':'ko',detail:detail,ts:o.prep.at};
+  }},
+  {id:'step3',short:'Réapprovisionnement envoyé à Puma (PM-SUE-NR-40)',check:function(db){
+    var sup=SUP_BY_ID.F003;
+    var mails=(db.mails||[]).filter(function(m){return m.folder==='out'&&norm(m.toMail||'')===norm(sup.email)}).sort(function(a,b){return a.ts-b.ts});
+    if(!mails.length)return {status:'pending',detail:''};
+    function evalMsg(msg){
+      var found=parseSkuQty(msg.text||'',sup.id);
+      var total=0,allExact=true;
+      found.forEach(function(x){total+=x.qty;var cur=stockOfDb(db,x.sku),exp=x.v.model.max-cur;if(x.qty!==exp)allExact=false});
+      var hasSue=found.some(function(x){return x.sku==='PM-SUE-NR-40'});
+      var moqOk=total>=(sup.moq||0);
+      var ok=found.length>0&&hasSue&&allExact&&moqOk;
+      var lines=found.map(function(x){var cur=stockOfDb(db,x.sku),exp=x.v.model.max-cur;return x.sku+' : '+x.qty+' paire(s) demandée(s) (stock actuel '+cur+', maximum '+x.v.model.max+', quantité attendue '+exp+')'+(x.qty===exp?' — correct':' — à corriger')});
+      var detail='Message envoyé le '+fdt(msg.ts)+' à '+sup.brand+' — total '+total+' paire'+(total>1?'s':'')+' (minimum requis '+sup.moq+').\n'+
+       (found.length?lines.join('\n'):'Aucune référence '+sup.brand+' avec une quantité claire n\'a été reconnue dans ce message.')+
+       (found.length&&!hasSue?'\nLa référence PM-SUE-NR-40 n\'apparaît pas dans ce message.':'');
+      return {ok:ok,detail:detail,ts:msg.ts};
+    }
+    var evals=mails.map(evalMsg),best=evals.filter(function(e){return e.ok})[0]||evals[evals.length-1];
+    return {status:best.ok?'ok':'ko',detail:best.detail,ts:best.ts};
+  }}
+];
+function stepPill(st){
+  if(!st||st.status==='na')return '<span class="pill" style="background:var(--line);color:var(--muted)">N/A</span>';
+  if(st.status==='pending')return '<span class="pill warn">Pas encore répondu</span>';
+  if(st.status==='ok')return '<span class="pill ok">Réussi</span>';
+  return '<span class="pill crit">À corriger</span>';
+}
+async function loadTrack(){
+  var T=tState(),list=(T.students||[]).filter(function(s){return !T.cls||s.classe===T.cls});
+  T.trackLoading=true;renderTeacher();
+  var results=await Promise.all(list.map(function(s){
+    return Backend.getState(s.uid,s.org||'p42').then(function(st){
+      var db=null;try{db=st&&JSON.parse(st.json)}catch(e){db=null}
+      if(!db)return {uid:s.uid,error:true};
+      var steps={};STEPS.forEach(function(step){steps[step.id]=step.check(db)});
+      return {uid:s.uid,steps:steps};
+    }).catch(function(){return {uid:s.uid,error:true}});
+  }));
+  T.track=T.track||{};
+  results.forEach(function(r){T.track[r.uid]=r});
+  T.trackLoading=false;renderTeacher();
+}
+function infoDlg(title,text){
+  $('#dlg').innerHTML='<div class="overlay"><div class="dialog" role="dialog" aria-label="'+esc(title)+'"><h2>'+esc(title)+'</h2><p style="white-space:pre-wrap">'+(text?esc(text):'<span class="muted">(réponse vide)</span>')+'</p><div class="acts"><button class="btn" data-act="dlg-close">Fermer</button></div></div></div>';
+}
+function tTrack(st,classes){
+  var T=S.T,list=st.filter(function(s){return !T.cls||s.classe===T.cls});
+  var loadBtn='<button class="btn sm" data-act="track-load"'+(T.trackLoading?' disabled':'')+'>'+(T.trackLoading?'Chargement…':(Object.keys(T.track||{}).length?'Actualiser les réponses':'Charger les réponses'))+'</button>';
+  var head='<div class="panel-h"><div class="field" style="min-width:220px"><label for="t-cls">Classe</label><select id="t-cls" data-tcls="1"><option value="">Toutes les classes</option>'+classes.map(function(c){return '<option'+(T.cls===c?' selected':'')+'>'+esc(c)+'</option>'}).join('')+'</select></div>'+loadBtn+'</div>';
+  if(!list.length)return '<div class="panel">'+head+'<div class="panel-b muted">Aucun élève à suivre pour cette sélection.</div></div>';
+  var rows=list.map(function(s){
+    var tr=(T.track||{})[s.uid];
+    var cells;
+    if(!tr)cells=STEPS.map(function(){return '<td><span class="muted">—</span></td>'}).join('');
+    else if(tr.error)cells=STEPS.map(function(){return '<td><span class="pill crit">Lecture impossible</span></td>'}).join('');
+    else{
+      cells=STEPS.map(function(step){
+        var st1=tr.steps[step.id];
+        return '<td>'+stepPill(st1)+((st1.status==='ok'||st1.status==='ko')?' <button class="btn sm ghost" data-act="view-answer" data-uid="'+s.uid+'" data-step="'+step.id+'">Voir la réponse</button>':'')+'</td>';
+      }).join('');
+    }
+    return '<tr><td>'+esc(s.prenom+(s.nom?' '+s.nom:''))+'</td><td>'+esc(s.classe)+'</td>'+cells+'</tr>';
+  }).join('');
+  return '<div class="panel">'+head+'<div class="scroll"><table class="t"><thead><tr><th>Élève</th><th>Classe</th>'+STEPS.map(function(step){return '<th>'+esc(step.short)+'</th>'}).join('')+'</tr></thead><tbody>'+rows+'</tbody></table></div>'+
+   '<div class="panel-b small muted">Charge (ou actualise) les réponses pour lire la base de chaque élève et contrôler automatiquement ces points. « À corriger » signifie qu\'une réponse a été envoyée mais que l\'information attendue n\'y figure pas.</div></div>';
+}
 function saveStockCode(cls){
   var input=$('#stock-code-t');if(!input)return;
   var code=input.value.trim();
@@ -1284,13 +1400,14 @@ document.addEventListener('click',function(e){
    case 'back-list':backToList();break;
    case 'mail-open':mailOpen(parseInt(d.id,10));break;
    case 'mail-back':S.mailSel=null;renderApp();break;
-   case 'mail-folder':S.mailFolder=d.f;S.mailSel=null;renderApp();break;
+   case 'mail-folder':S.mailFolder=d.f;S.mailSel=null;S.composing=false;renderApp();break;
    case 'reply-toggle':var f=$('#reply-form');f.hidden=!f.hidden;if(!f.hidden)$('#reply-t').focus();break;
+   case 'compose-new':S.composing=true;S.mailSel=null;renderApp();break;
+   case 'compose-cancel':S.composing=false;renderApp();break;
    case 'order-reg':orderReg(parseInt(d.id,10));break;
    case 'order-open':go('order',{no:d.no});break;
    case 'gen-doc':genDoc();break;
    case 'validate':validateBP();break;
-   case 'verify-prep':verifyPrep(d.sku);break;
    case 'copy-bp':copyBP();break;
    case 'prod':go('product',{ref:d.ref});break;
    case 'tab':S.tab[d.k]=d.t;renderMain();break;
@@ -1302,6 +1419,11 @@ document.addEventListener('click',function(e){
      Backend.loginTeacher().then(function(){S.mode='teacher';S.T=null;S.tord=null;renderApp();loadStudents()},function(err){renderLogin(esc(err.message))});break;
    case 't-tab':tState().tab=d.t;S.T.msg='';renderTeacher();break;
    case 't-reload':loadStudents();break;
+   case 'track-load':loadTrack();break;
+   case 'view-answer':
+     var trk=(S.T.track||{})[d.uid],s3=studentByUid(d.uid);
+     if(trk&&!trk.error){var st2=trk.steps[d.step];infoDlg('Réponse de '+(s3?s3.prenom+' '+(s3.nom||''):''),st2&&st2.detail)}
+     break;
    case 'open-student':
      var s=studentByUid(d.uid);if(s){openBase(s.uid,s,true).catch(function(err){S.T.msg='<span class="err">Ouverture impossible : '+esc(err.message)+'</span>';renderTeacher()})}break;
    case 'reset-one-ask':
@@ -1340,7 +1462,7 @@ document.addEventListener('submit',function(e){
   else if(id==='qcmd'){var i=$('#qin');var v=i.value;i.value='';runCmd(v,'top')}
   else if(id==='ccmd'){var c=$('#cin');var v2=c.value;c.value='';runCmd(v2,'console')}
   else if(id==='reply-form')sendReply();
-  else if(e.target.dataset&&e.target.dataset.act==='verify-stock')verifyStock(e.target.dataset.sku);
+  else if(id==='compose-form')sendSupplierOrder();
   else if(e.target.dataset&&e.target.dataset.act==='set-stock-code')saveStockCode(e.target.dataset.cls);
   else if(id==='stock-unlock-form')tryUnlockStock();
 });
@@ -1350,7 +1472,7 @@ document.addEventListener('input',function(e){
 });
 document.addEventListener('change',function(e){
   var t=e.target;
-  if(t.dataset&&t.dataset.qty)setQty(t.dataset.qty,t.value);
+  if(t.dataset&&t.dataset.prepField)setPrepField(t.dataset.sku,t.dataset.prepField,t.value);
   else if(t.dataset&&t.dataset.filter)t.dataset.filter==='cat'?updateCatalog():t.dataset.filter==='stock'?updateStock():updateTiers();
   else if(t.id==='t-m')fillColors();
   else if(t.dataset&&t.dataset.tcls){loadClassCode(t.value)}
