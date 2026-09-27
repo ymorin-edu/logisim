@@ -306,6 +306,8 @@ var VOCAB={
 function activeOrg(){return (S&&S.org)||'p42'}
 function V(){return VOCAB[activeOrg()]||VOCAB.p42}
 function unitWord(n){var v=V();return (n>1||n===0)?v.unitPl:v.unit}
+function orgById(id){return ORGS.filter(function(o){return o.id===id})[0]||ORGS[0]}
+function orgName(id){return orgById(id).name}
 var SHIP={COL:['Colissimo Domicile',4.9],CHR:['Chronopost Express',9.9],REL:['Point Relais',3.9]};
 
 var SUPPLIERS_P42=[
@@ -536,6 +538,7 @@ async function fbBackend(){
       ]);
     },
     watchState:function(uid,org,cb){return FS.onSnapshot(ref('students',uid,'state',org),function(s){if(s.exists())cb(s.data())})},
+    setStudentOrg:function(uid,org){return FS.updateDoc(ref('students',uid),{org:org})},
     watchInbox:function(uid,cb){return FS.onSnapshot(FS.collection(fs,'students',uid,'inbox'),function(s){cb(s.docs.map(function(d){return {id:d.id,json:d.data().json}}))})},
     ackInbox:function(uid,id){return FS.deleteDoc(ref('students',uid,'inbox',id))},
     listStudents:async function(){var s=await FS.getDocs(FS.collection(fs,'students'));return s.docs.map(function(d){var x=d.data();x.uid=d.id;return x})},
@@ -601,6 +604,7 @@ function demoBackend(){
       var st=g('students',{});if(st[uid]){st[uid].stats=stats;st[uid].lastSeen=Date.now();s('students',st)}
     },
     watchState:function(){return function(){}},
+    setStudentOrg:async function(uid,org){var st=g('students',{});if(st[uid]){st[uid].org=org;s('students',st)}},
     watchInbox:function(uid,cb){(wInbox[uid]=wInbox[uid]||[]).push(cb);setTimeout(function(){cb(g('inbox',{})[uid]||[])},0);return function(){wInbox[uid]=(wInbox[uid]||[]).filter(function(x){return x!==cb})}},
     ackInbox:async function(uid,id){var a=g('inbox',{});a[uid]=(a[uid]||[]).filter(function(x){return x.id!==id});s('inbox',a)},
     listStudents:async function(){var st=g('students',{});return Object.keys(st).map(function(k){var x=JSON.parse(JSON.stringify(st[k]));x.uid=k;return x})},
@@ -676,7 +680,11 @@ function nextCode(list,prefix,width){
 }
 
 function stopWatch(){S.unwatch.forEach(function(f){try{f()}catch(e){}});S.unwatch=[]}
-async function openBase(uid,profile,viewing){
+async function openBase(uid,profile,viewing,forceOrg){
+  if(forceOrg&&forceOrg!==profile.org){
+    profile.org=forceOrg;
+    if(!viewing)Backend.setStudentOrg(uid,forceOrg).catch(function(){});
+  }
   var org=useOrg(profile.org||'p42');
   var st=await Backend.getState(uid,org),db=null;
   if(st){try{db=JSON.parse(st.json)}catch(e){db=null}}
@@ -764,7 +772,7 @@ function renderApp(){
    '<div class="nav-sep">Tiers</div>'+nav('tiers','Clients / Fournisseurs')+
    '<div class="nav-sep">Outils</div>'+nav('console','Console')+
    '</aside><div class="content"><header class="top"><form id="qcmd" autocomplete="off"><div class="qbar"><span>&gt;</span><input id="qin" type="text" placeholder=".getstock NK-AM270-NR-42" spellcheck="false" aria-label="Requête rapide"></div></form>'+
-   (S.view?'<span class="chip teach">Base de '+esc(S.user.prenom+' '+(S.user.nom||''))+' · '+esc(S.user.classe)+' (enseignant)</span>':'<span class="chip">'+esc(S.user.prenom)+' · '+esc(S.user.classe)+'</span>')+'<span id="sync" class="chip sync '+S.sync+'">'+syncLabel()+'</span><button class="btn sm" data-act="reset-ask">Réinitialiser</button>'+(S.view?'<button class="btn sm" data-act="back-list">← Élèves</button>':'<button class="btn sm" data-act="logout">Quitter</button>')+'</header>'+
+   (S.view?'<span class="chip teach">Base de '+esc(S.user.prenom+' '+(S.user.nom||''))+' · '+esc(S.user.classe)+' (enseignant)</span>':'<span class="chip">'+esc(S.user.prenom)+' · '+esc(S.user.classe)+'</span>')+'<span id="sync" class="chip sync '+S.sync+'">'+syncLabel()+'</span>'+(!S.view&&ORGS.filter(function(o){return o.open}).length>1?'<button class="btn sm" data-act="switch-exercise">Changer d\'exercice</button>':'')+'<button class="btn sm" data-act="reset-ask">Réinitialiser</button>'+(S.view?'<button class="btn sm" data-act="back-list">← Élèves</button>':'<button class="btn sm" data-act="logout">Quitter</button>')+'</header>'+
    '<main id="main"></main><div class="foot">Toutes les données (marques exceptées) sont fictives et servent uniquement à l\'exercice.</div></div></div>';
   renderMain();
 }
@@ -790,17 +798,42 @@ function renderLogin(msg){
    '<div style="border-top:1px solid var(--line);padding-top:14px"><button class="btn ghost sm" data-act="teacher-login" style="padding-left:0">Espace enseignant</button></div>'+
    '</div></section></div>';
 }
+function renderOrgPick(uid,profile){
+  var open=ORGS.filter(function(o){return o.open});
+  var cards=open.map(function(o){return '<button class="btn ghost" data-act="org-pick" data-org="'+o.id+'" style="text-align:left;display:block;padding:16px;height:auto;white-space:normal">'+
+    '<b style="font-size:16px">'+esc(o.name)+'</b>'+(profile.org===o.id?' <span class="pill ok">Reprendre</span>':'')+
+    '<br><span class="muted">'+esc(o.sub)+'</span><br><span class="small muted">'+esc(o.exo)+'</span></button>'}).join('');
+  app().innerHTML='<div class="login"><section class="login-side"><div><div class="wordmark" style="font-size:34px">'+logoMark(40,'#ff6b6b')+'Logi<span>Sim</span></div><p style="margin-top:16px">Espace de travail numérique adapté à la logistique.</p></div></section>'+
+   '<section class="login-main"><div class="login-card"><div><h1>Bonjour '+esc(profile.prenom)+'</h1><p class="muted" style="margin-top:4px">Quel exercice fais-tu aujourd\'hui ?</p></div>'+
+   '<div style="display:grid;gap:10px">'+cards+'</div>'+
+   '<div style="border-top:1px solid var(--line);padding-top:14px"><button class="btn ghost sm" data-act="logout" style="padding-left:0">← Changer de matricule</button></div>'+
+   '</div></section></div>';
+}
 async function doLogin(){
   var mat=normMat($('#l-mat').value);if(!mat)return;
   var b=$('#l-btn');b.disabled=true;b.textContent='Connexion…';
-  try{var r=await Backend.loginStudent(mat);S.mode='student';await openBase(r.uid,r.profile,false)}
+  try{
+    var r=await Backend.loginStudent(mat);S.mode='student';
+    if(ORGS.filter(function(o){return o.open}).length>1){S.pendingLogin={uid:r.uid,profile:r.profile};renderOrgPick(r.uid,r.profile);return}
+    await openBase(r.uid,r.profile,false);
+  }
   catch(e){renderLogin(esc(e.message))}
 }
 async function doLogout(){
   if(saveT)await flush();
   stopWatch();try{await Backend.logout()}catch(e){}
-  S.user=null;S.uid=null;S.db=null;S.mode=null;S.view=false;S.T=null;S.tord=null;
+  S.user=null;S.uid=null;S.db=null;S.mode=null;S.view=false;S.T=null;S.tord=null;S.pendingLogin=null;
   renderLogin();
+}
+async function pickOrg(orgId){
+  var p=S.pendingLogin;if(!p)return;
+  await openBase(p.uid,p.profile,false,orgId);
+  S.pendingLogin=null;
+}
+function switchExercise(){
+  if(!S.user||!S.uid)return;
+  S.pendingLogin={uid:S.uid,profile:S.user};
+  renderOrgPick(S.uid,S.user);
 }
 async function backToList(){
   if(saveT)await flush();
@@ -1297,18 +1330,19 @@ function loadClassCode(cls){
   Backend.getClassCode(classCodeOf(cls)).then(function(v){if(S.T.stockCodeCls===cls)S.T.stockCode=v||'';renderTeacher()},function(){if(S.T.stockCodeCls===cls)S.T.stockCode='';renderTeacher()});
 }
 function tList(st,classes){
-  var T=S.T;
+  var T=S.T,multiOrg=ORGS.filter(function(o){return o.open}).length>1;
   var rows=st.filter(function(s){return !T.cls||s.classe===T.cls}).map(function(s){
     var x=s.stats||{};
-    return '<tr><td>'+esc(s.prenom+(s.nom?' '+s.nom:''))+'</td><td>'+esc(s.classe)+'</td><td class="ref">'+esc(s.matricule)+'</td><td>'+(s.lastSeen?fdt(s.lastSeen):'<span class="muted">jamais</span>')+'</td><td class="r">'+(x.orders||0)+'</td><td class="r">'+(x.prepared||0)+'</td><td class="r">'+(x.unread||0)+'</td><td class="r" style="white-space:nowrap"><button class="btn sm" data-act="open-student" data-uid="'+s.uid+'">Ouvrir la base</button> <button class="btn sm" data-act="reset-one-ask" data-uid="'+s.uid+'">Réinitialiser</button></td></tr>';
+    return '<tr><td>'+esc(s.prenom+(s.nom?' '+s.nom:''))+'</td><td>'+esc(s.classe)+'</td><td class="ref">'+esc(s.matricule)+'</td>'+(multiOrg?'<td>'+esc(orgName(s.org||'p42'))+'</td>':'')+'<td>'+(s.lastSeen?fdt(s.lastSeen):'<span class="muted">jamais</span>')+'</td><td class="r">'+(x.orders||0)+'</td><td class="r">'+(x.prepared||0)+'</td><td class="r">'+(x.unread||0)+'</td><td class="r" style="white-space:nowrap"><button class="btn sm" data-act="open-student" data-uid="'+s.uid+'">Ouvrir la base</button> <button class="btn sm" data-act="reset-one-ask" data-uid="'+s.uid+'">Réinitialiser</button></td></tr>';
   }).join('');
   var clsBtns=T.cls?'<button class="btn sm" data-act="send-to-class" data-cls="'+esc(T.cls)+'">Envoyer une commande à cette classe</button><button class="btn sm danger" data-act="reset-class-ask" data-cls="'+esc(T.cls)+'">Réinitialiser la classe</button><button class="btn sm danger" data-act="delete-class-ask" data-cls="'+esc(T.cls)+'">Supprimer la classe</button>':'';
   var codeLoading=T.cls&&T.stockCode==null;
   var stockCodeRow=T.cls?'<div class="panel-b" style="padding-top:0;padding-bottom:16px;border-top:1px solid var(--line)"><form data-act="set-stock-code" data-cls="'+esc(T.cls)+'" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><label class="small muted" for="stock-code-t">Code d\'accès à l\'onglet Stock pour '+esc(T.cls)+'</label><input id="stock-code-t" type="text" class="mono" style="width:150px" placeholder="ex. STOCK24" value="'+esc(codeLoading?'':T.stockCode)+'"'+(codeLoading?' disabled':'')+'><button class="btn sm" type="submit"'+(codeLoading?' disabled':'')+'>Enregistrer</button></form>'+
    '<p class="small muted" style="margin-top:8px">Sans code (champ vide), les élèves de cette classe n\'ont pas accès à l\'onglet Stock : ils doivent utiliser la console (<span class="mono">.getstock REF</span>) pour connaître un niveau précis.</p></div>':'';
+  var noteExo=multiOrg?'<p class="panel-b small muted" style="border-top:1px solid var(--line)">Chaque élève choisit son exercice à la connexion (ou via « Changer d\'exercice ») : la colonne Exercice indique l\'univers dans lequel il travaille actuellement.</p>':'';
   return '<div class="panel"><div class="panel-h"><div class="field" style="min-width:220px"><label for="t-cls">Classe</label><select id="t-cls" data-tcls="1"><option value="">Toutes les classes</option>'+classes.map(function(c){return '<option'+(T.cls===c?' selected':'')+'>'+esc(c)+'</option>'}).join('')+'</select></div><div style="display:flex;gap:8px;flex-wrap:wrap">'+clsBtns+'</div></div>'+
    stockCodeRow+
-   (T.loading?'<div class="panel-b muted">Chargement…</div>':(rows?'<div class="scroll"><table class="t"><thead><tr><th>Élève</th><th>Classe</th><th>Matricule</th><th>Dernière connexion</th><th class="r">Commandes enregistrées</th><th class="r">Préparées</th><th class="r">Non lus</th><th></th></tr></thead><tbody>'+rows+'</tbody></table></div>':'<div class="panel-b muted">Aucun élève pour le moment. Crée une classe dans l\'onglet « Créer une classe ».</div>'))+'</div>';
+   (T.loading?'<div class="panel-b muted">Chargement…</div>':(rows?'<div class="scroll"><table class="t"><thead><tr><th>Élève</th><th>Classe</th><th>Matricule</th>'+(multiOrg?'<th>Exercice</th>':'')+'<th>Dernière connexion</th><th class="r">Commandes enregistrées</th><th class="r">Préparées</th><th class="r">Non lus</th><th></th></tr></thead><tbody>'+rows+'</tbody></table></div>'+noteExo:'<div class="panel-b muted">Aucun élève pour le moment. Crée une classe dans l\'onglet « Créer une classe ».</div>'))+'</div>';
 }
 function tCreate(){
   var T=S.T,made='';
@@ -1320,11 +1354,19 @@ function tCreate(){
    '<div class="field"><label for="c-list">Élèves, un par ligne : numéro Darboux à 2 chiffres puis prénom (nom facultatif)</label><textarea id="c-list" rows="8" placeholder="01 Camille Martin&#10;04 Lucas Bernard&#10;06 Léa Dubois"></textarea><span class="small muted">Le matricule créé est le code de classe suivi du numéro, par exemple <span class="mono">1L01</span>. Reprends exactement les mêmes numéros que dans Suite Logistique Darboux pour que les deux matricules soient identiques. Si tu laisses le numéro de côté sur une ligne, il est attribué automatiquement.</span></div>'+
    '<div><button class="btn primary" type="submit" id="c-btn">Créer les comptes</button></div><div id="c-out"></div></form></div></div>'+made;
 }
+function classOrgs(st,cls){
+  var set={};st.filter(function(s){return s.classe===cls}).forEach(function(s){set[s.org||'p42']=1});
+  return Object.keys(set);
+}
 function tSend(st,classes){
-  var t=S.tord;
-  var opts='<option value="">Choisir…</option>'+classes.map(function(c){var n=st.filter(function(s){return s.classe===c}).length;return '<option value="c:'+esc(c)+'"'+(t.target==='c:'+c?' selected':'')+'>Toute la classe : '+esc(c)+' ('+n+')</option>'}).join('')+
-   st.map(function(s){return '<option value="u:'+s.uid+'"'+(t.target==='u:'+s.uid?' selected':'')+'>'+esc(s.prenom+' '+(s.nom||''))+' ('+esc(s.classe)+')</option>'}).join('');
+  var t=S.tord,multiOrg=ORGS.filter(function(o){return o.open}).length>1;
+  var opts='<option value="">Choisir…</option>'+classes.map(function(c){
+    var n=st.filter(function(s){return s.classe===c}).length,os=classOrgs(st,c);
+    var tag=multiOrg?(os.length>1?' — mixte ('+os.map(orgName).join(' / ')+')':' — '+orgName(os[0])):'';
+    return '<option value="c:'+esc(c)+'"'+(t.target==='c:'+c?' selected':'')+'>Toute la classe : '+esc(c)+' ('+n+')'+esc(tag)+'</option>'}).join('')+
+   st.map(function(s){return '<option value="u:'+s.uid+'"'+(t.target==='u:'+s.uid?' selected':'')+'>'+esc(s.prenom+' '+(s.nom||''))+' ('+esc(s.classe)+')'+(multiOrg?esc(' — '+orgName(s.org||'p42')):'')+'</option>'}).join('');
   return '<div class="panel"><div class="panel-b" style="display:grid;gap:16px"><p class="muted">La commande arrive directement dans la messagerie des élèves choisis, même s\'ils sont déjà connectés.</p>'+
+   (multiOrg?'<p class="small muted">La commande utilise le catalogue de l\'exercice affiché entre parenthèses. Une classe « mixte » (élèves sur des exercices différents) ne recevra la commande que pour les élèves de l\'exercice de la commande ; choisis un destinataire individuel pour les autres.</p>':'')+
    '<div class="field"><label for="t-tg">Destinataires</label><select id="t-tg">'+opts+'</select></div>'+
    '<div class="filters"><div class="field grow"><label for="t-c">Client</label><select id="t-c">'+CUSTOMERS.map(function(c){return '<option value="'+c.id+'"'+(c.id===t.cust?' selected':'')+'>'+c.id+' · '+esc(c.prenom+' '+c.nom)+' ('+esc(c.ville)+')</option>'}).join('')+'</select></div>'+
    '<div class="field"><label for="t-s">Livraison</label><select id="t-s">'+Object.keys(SHIP).map(function(k){return '<option value="'+k+'"'+(k===t.ship?' selected':'')+'>'+SHIP[k][0]+' ('+eur(SHIP[k][1])+')</option>'}).join('')+'</select></div></div>'+
@@ -1358,10 +1400,18 @@ async function sendOrder(){
   t.cust=$('#t-c').value;t.ship=$('#t-s').value;t.target=$('#t-tg').value;
   if(!t.target){out.innerHTML='<div class="msg err">Choisis les destinataires.</div>';return}
   if(!t.lines.length){out.innerHTML='<div class="msg err">Ajoute au moins une ligne à la commande.</div>';return}
-  var st=S.T.students||[],uids=t.target.indexOf('c:')===0?st.filter(function(s){return s.classe===t.target.slice(2)}).map(function(s){return s.uid}):[t.target.slice(2)];
+  var st=S.T.students||[],orderOrg=tActiveOrg(),skipped=0;
+  var targeted=t.target.indexOf('c:')===0?st.filter(function(s){return s.classe===t.target.slice(2)}):st.filter(function(s){return s.uid===t.target.slice(2)});
+  var matching=targeted.filter(function(s){return (s.org||'p42')===orderOrg});
+  skipped=targeted.length-matching.length;
+  var uids=matching.map(function(s){return s.uid});
+  if(!uids.length){out.innerHTML='<div class="msg err">Aucun destinataire ne travaille actuellement sur l\'exercice '+esc(orgName(orderOrg))+'.</div>';return}
   var o={no:'CMD-'+pad(Math.floor(Math.random()*900000)+100000,6),date:Date.now(),customerId:t.cust,ship:t.ship,lines:t.lines.map(function(l){return {sku:l.sku,qty:l.qty}})};
   out.innerHTML='<div class="msg info">Envoi…</div>';
-  try{await Backend.pushInbox(uids,JSON.stringify(o));out.innerHTML='<div class="msg ok">Commande <b class="mono">'+o.no+'</b> envoyée à '+uids.length+' élève'+(uids.length>1?'s':'')+'.</div>'}
+  try{
+    await Backend.pushInbox(uids,JSON.stringify(o));
+    out.innerHTML='<div class="msg ok">Commande <b class="mono">'+o.no+'</b> envoyée à '+uids.length+' élève'+(uids.length>1?'s':'')+'.'+(skipped?' '+skipped+' élève'+(skipped>1?'s ne travaillent':' ne travaille')+' pas sur '+esc(orgName(orderOrg))+' et '+(skipped>1?'n\'ont':'n\'a')+' pas reçu cette commande.':'')+'</div>';
+  }
   catch(e){out.innerHTML='<div class="msg err">Envoi impossible : '+esc(e.message)+'</div>'}
 }
 async function createClass(){
@@ -1439,6 +1489,7 @@ var STEPS=[
   }},
   {id:'step3',short:'Réapprovisionnement envoyé à Puma (PM-SUE-NR-40)',check:function(db){
     var sup=SUP_BY_ID.F003;
+    if(!sup)return {status:'na',detail:''};
     var mails=(db.mails||[]).filter(function(m){return m.folder==='out'&&norm(m.toMail||'')===norm(sup.email)}).sort(function(a,b){return a.ts-b.ts});
     if(!mails.length)return {status:'pending',detail:''};
     function evalMsg(msg){
@@ -1484,7 +1535,7 @@ function infoDlg(title,text){
   $('#dlg').innerHTML='<div class="overlay"><div class="dialog" role="dialog" aria-label="'+esc(title)+'"><h2>'+esc(title)+'</h2><p style="white-space:pre-wrap">'+(text?esc(text):'<span class="muted">(réponse vide)</span>')+'</p><div class="acts"><button class="btn" data-act="dlg-close">Fermer</button></div></div></div>';
 }
 function tTrack(st,classes){
-  var T=S.T,list=st.filter(function(s){return !T.cls||s.classe===T.cls});
+  var T=S.T,list=st.filter(function(s){return !T.cls||s.classe===T.cls}),multiOrg=ORGS.filter(function(o){return o.open}).length>1;
   var loadBtn='<button class="btn sm" data-act="track-load"'+(T.trackLoading?' disabled':'')+'>'+(T.trackLoading?'Chargement…':(Object.keys(T.track||{}).length?'Actualiser les réponses':'Charger les réponses'))+'</button>';
   var head='<div class="panel-h"><div class="field" style="min-width:220px"><label for="t-cls">Classe</label><select id="t-cls" data-tcls="1"><option value="">Toutes les classes</option>'+classes.map(function(c){return '<option'+(T.cls===c?' selected':'')+'>'+esc(c)+'</option>'}).join('')+'</select></div>'+loadBtn+'</div>';
   if(!list.length)return '<div class="panel">'+head+'<div class="panel-b muted">Aucun élève à suivre pour cette sélection.</div></div>';
@@ -1499,10 +1550,11 @@ function tTrack(st,classes){
         return '<td>'+stepPill(st1)+((st1.status==='ok'||st1.status==='ko')?' <button class="btn sm ghost" data-act="view-answer" data-uid="'+s.uid+'" data-step="'+step.id+'">Voir la réponse</button>':'')+'</td>';
       }).join('');
     }
-    return '<tr><td>'+esc(s.prenom+(s.nom?' '+s.nom:''))+'</td><td>'+esc(s.classe)+'</td>'+cells+'</tr>';
+    return '<tr><td>'+esc(s.prenom+(s.nom?' '+s.nom:''))+'</td><td>'+esc(s.classe)+'</td>'+(multiOrg?'<td>'+esc(orgName(s.org||'p42'))+'</td>':'')+cells+'</tr>';
   }).join('');
-  return '<div class="panel">'+head+'<div class="scroll"><table class="t"><thead><tr><th>Élève</th><th>Classe</th>'+STEPS.map(function(step){return '<th>'+esc(step.short)+'</th>'}).join('')+'</tr></thead><tbody>'+rows+'</tbody></table></div>'+
-   '<div class="panel-b small muted">Charge (ou actualise) les réponses pour lire la base de chaque élève et contrôler automatiquement ces points. « À corriger » signifie qu\'une réponse a été envoyée mais que l\'information attendue n\'y figure pas.</div></div>';
+  var exoNote=multiOrg?' Les points ci-dessous vérifient actuellement l\'exercice Spartoo (Léa Dubois, CMD-048213, réapprovisionnement Puma) : ils affichent « N/A » pour un élève travaillant sur TechPro Distribution, dont l\'exercice de suivi n\'a pas encore été créé.':'';
+  return '<div class="panel">'+head+'<div class="scroll"><table class="t"><thead><tr><th>Élève</th><th>Classe</th>'+(multiOrg?'<th>Exercice</th>':'')+STEPS.map(function(step){return '<th>'+esc(step.short)+'</th>'}).join('')+'</tr></thead><tbody>'+rows+'</tbody></table></div>'+
+   '<div class="panel-b small muted">Charge (ou actualise) les réponses pour lire la base de chaque élève et contrôler automatiquement ces points. « À corriger » signifie qu\'une réponse a été envoyée mais que l\'information attendue n\'y figure pas.'+exoNote+'</div></div>';
 }
 function saveStockCode(cls){
   var input=$('#stock-code-t');if(!input)return;
@@ -1534,6 +1586,8 @@ document.addEventListener('click',function(e){
   switch(a){
    case 'nav':go(d.v);break;
    case 'logout':doLogout();break;
+   case 'org-pick':pickOrg(d.org);break;
+   case 'switch-exercise':switchExercise();break;
    case 'back-list':backToList();break;
    case 'mail-open':mailOpen(parseInt(d.id,10));break;
    case 'mail-back':S.mailSel=null;renderApp();break;
