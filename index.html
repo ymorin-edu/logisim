@@ -68,8 +68,9 @@ input[type=number]{width:78px;padding:5px 7px;font-family:var(--mono)}
 /* Login */
 .login{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);min-height:100vh}
 .login-side{background:var(--side);color:var(--side-ink);padding:48px clamp(24px,5vw,64px);display:flex;flex-direction:column;justify-content:space-between;gap:32px}
-.wordmark{font-family:var(--cond);font-weight:600;font-size:30px;letter-spacing:.01em;color:#fff}
+.wordmark{font-family:var(--cond);font-weight:600;font-size:30px;letter-spacing:.01em;color:#fff;display:flex;align-items:center;gap:11px}
 .wordmark span{color:#ff6b6b}
+.wordmark svg{flex:none}
 .login-side h1{color:#fff;font-size:26px;max-width:16ch;margin-top:20px}
 .login-side p{max-width:38ch;color:var(--side-ink)}
 .login-facts{display:grid;gap:10px;font-family:var(--mono);font-size:12px;color:#c9a7ab;border-top:1px solid var(--side-line);padding-top:18px}
@@ -275,6 +276,14 @@ var store={
 };
 function $(s,r){return (r||document).querySelector(s)}
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+/* Logo LogiSim : un colis en contour. color peut être une couleur fixe (#ff6b6b sur fond sombre)
+   ou "var(--accent)" pour suivre le thème clair/sombre sur fond clair. */
+function logoMark(size,color){
+  return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 52 52" aria-hidden="true" focusable="false">'+
+   '<g fill="none" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" style="stroke:'+color+'">'+
+   '<path d="M26 6 L46 16 V38 L26 48 L6 38 V16 Z"/><path d="M6 16 L26 26 L46 16"/><path d="M26 26 V48"/>'+
+   '</g><path d="M14 11 L26 17" stroke-width="4" stroke-linecap="round" style="stroke:'+color+'"/></svg>';
+}
 function norm(s){return String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().trim().replace(/\s+/g,' ')}
 function eur(n){return n.toLocaleString('fr-FR',{style:'currency',currency:'EUR'})}
 function fdate(t){return new Date(t).toLocaleDateString('fr-FR')}
@@ -284,7 +293,7 @@ function rng(seed){return function(){seed|=0;seed=seed+0x6D2B79F5|0;var t=Math.i
 
 /* ============================== Données de référence ============================== */
 var ORGS=[
-  {id:'p42',name:'Pointure 42',sub:'Vente de chaussures en ligne',exo:'Exercice 1 : réception d\'une commande et bon de préparation',open:true},
+  {id:'p42',name:'Spartoo',sub:'Vente de chaussures en ligne',exo:'Exercice 1 : réception d\'une commande et bon de préparation',open:true},
   {id:'exo2',name:'Exercice 2 (à venir)',sub:'',exo:'',open:false}
 ];
 var COLORS={NR:['Noir','#1f2124'],BL:['Blanc','#f4f4f1'],GR:['Gris','#8b9098'],MA:['Bleu marine','#22406e'],RG:['Rouge','#c23a2f'],BE:['Beige','#d9c4a1'],VE:['Vert','#33704f'],RS:['Rose','#e8a9ba'],MR:['Marron','#6d4b30']};
@@ -521,11 +530,11 @@ function newDB(u){
   VARIANTS.forEach(function(v){stock[v.sku]=v.qty0});
   var db={v:1,created:now,stock:stock,moves:[],mails:[],orders:[],seq:1};
   var o1={no:'CMD-048213',date:now-3600e3*3,customerId:'C0007',ship:'COL',lines:[{sku:'NK-AM270-NR-42',qty:1},{sku:'AD-STS-BL-41',qty:2},{sku:'PM-SUE-NR-40',qty:1}]};
-  addMail(db,{folder:'in',ts:now-3600e3*26,from:'M. Morin, responsable logistique',fromMail:'direction@pointure42.example',to:u.prenom,subject:'Bienvenue chez Pointure 42 : votre mission',kind:'text',
-    text:'Bonjour '+u.prenom+',\n\nVous rejoignez l\'équipe logistique de Pointure 42, boutique de chaussures en ligne. Chaque commande client arrive par mail dans cette messagerie.\n\nPour chaque commande, vous devez :\n1. l\'enregistrer,\n2. contrôler le stock de chaque ligne,\n3. éditer le bon de préparation,\n4. valider la préparation pour sortir les articles du stock.\n\nLa console (menu Console) vous permet d\'interroger la base avec des commandes comme .getstock REF. Tapez .help pour les voir toutes.\n\nBon courage,\nM. Morin'});
+  addMail(db,{folder:'in',ts:now-3600e3*26,from:'M. Morin, responsable logistique',fromMail:'direction@spartoo.example',to:u.prenom,subject:'Bienvenue chez Spartoo : votre mission',kind:'text',
+    text:'Bonjour '+u.prenom+',\n\nVous rejoignez l\'équipe logistique de Spartoo, boutique de chaussures en ligne. Chaque commande client arrive par mail dans cette messagerie.\n\nPour chaque commande, vous devez :\n1. l\'enregistrer,\n2. contrôler le stock de chaque ligne,\n3. éditer le bon de préparation,\n4. valider la préparation pour sortir les articles du stock.\n\nLa console (menu Console) vous permet d\'interroger la base avec des commandes comme .getstock REF. Tapez .help pour les voir toutes.\n\nBon courage,\nM. Morin'});
   addMail(db,{folder:'in',ts:now-3600e3*5,from:'Léa Dubois',fromMail:'lea.dubois@mail.example',to:u.prenom,subject:'Question sur les Stan Smith blanches',kind:'text',
     text:'Bonjour,\n\nJe cherche des Stan Smith blanches en pointure 44. Est-ce que vous en avez en stock actuellement ? Combien de paires ?\n\nMerci d\'avance,\nLéa'});
-  addMail(db,{folder:'in',ts:o1.date,from:'Site web Pointure 42',fromMail:'no-reply@pointure42.example',to:u.prenom,subject:'Nouvelle commande web n° '+o1.no,kind:'order',order:o1});
+  addMail(db,{folder:'in',ts:o1.date,from:'Site web Spartoo',fromMail:'no-reply@spartoo.example',to:u.prenom,subject:'Nouvelle commande web n° '+o1.no,kind:'order',order:o1});
   return db;
 }
 function addMail(db,m){m.id=db.seq++;m.read=false;db.mails.push(m);return m}
@@ -571,7 +580,7 @@ function onInbox(list){
   list.forEach(function(x){
     var o=null;try{o=JSON.parse(x.json)}catch(e){}
     if(o&&!S.db.mails.some(function(m){return m.kind==='order'&&m.order.no===o.no})){
-      addMail(S.db,{folder:'in',ts:o.date,from:'Site web Pointure 42',fromMail:'no-reply@pointure42.example',to:S.user.prenom,subject:'Nouvelle commande web n° '+o.no,kind:'order',order:o});changed=true;
+      addMail(S.db,{folder:'in',ts:o.date,from:'Site web Spartoo',fromMail:'no-reply@spartoo.example',to:S.user.prenom,subject:'Nouvelle commande web n° '+o.no,kind:'order',order:o});changed=true;
     }
     Backend.ackInbox(S.uid,x.id);
   });
@@ -620,7 +629,7 @@ function renderApp(){
   var todo=S.db.orders.filter(function(o){var s=ostatus(o)[0];return s==='À préparer'||s==='En cours'}).length;
   var org=ORGS[0],v=S.route.v;
   function nav(id,lbl,n,on){var act=(on||[id]).indexOf(v)>=0;return '<button class="nav'+(act?' on':'')+'" data-act="nav" data-v="'+id+'"><span>'+lbl+'</span>'+(n?'<span class="n">'+n+'</span>':'')+'</button>'}
-  app().innerHTML='<div class="shell"><aside class="side"><div class="wordmark">Logi<span>Sim</span></div>'+
+  app().innerHTML='<div class="shell"><aside class="side"><div class="wordmark">'+logoMark(24,'#ff6b6b')+'Logi<span>Sim</span></div>'+
    '<div class="org"><b>'+org.name+'</b>'+esc(org.sub)+'</div>'+
    nav('home','Accueil')+nav('mail','Messagerie',unread)+nav('orders','Commandes',todo,['orders','order'])+
    '<div class="nav-sep">Articles</div>'+nav('catalog','Catalogue',0,['catalog','product'])+nav('stock','Stock')+
@@ -643,7 +652,7 @@ function renderMain(){
 
 /* ---- Connexion ---- */
 function renderLogin(msg){
-  app().innerHTML='<div class="login"><section class="login-side"><div><div class="wordmark">Logi<span>Sim</span></div><h1>Le poste de travail de la logistique</h1><p style="margin-top:12px">Espace de travail numérique adapté à la logistique.</p></div>'+
+  app().innerHTML='<div class="login"><section class="login-side"><div><div class="wordmark" style="font-size:34px">'+logoMark(40,'#ff6b6b')+'Logi<span>Sim</span></div><p style="margin-top:16px">Espace de travail numérique adapté à la logistique.</p></div>'+
    '<div class="login-facts"><span>&gt; .getstock NK-AM270-NR-42</span><span>&gt; .getprice AD-STS</span><span>&gt; .lowstock 5</span></div></section>'+
    '<section class="login-main"><div class="login-card"><div><h1>Connexion</h1><p class="muted" style="margin-top:4px">Saisis le matricule remis par ton enseignant.</p></div>'+
    (msg?'<div class="msg err" role="alert">'+msg+'</div>':'')+
@@ -712,7 +721,7 @@ function viewMail(){
      (acts?'<div style="display:flex;gap:8px;flex-wrap:wrap">'+acts+'</div>':'')+
      '<form id="reply-form" hidden><div class="field"><label for="reply-t">Votre réponse</label><textarea id="reply-t"></textarea></div><div><button class="btn primary" type="submit">Envoyer</button></div></form></div>';
   }
-  return '<div class="page-head"><div><h1>Messagerie</h1><p>Adresse : '+esc(norm(S.user.prenom).replace(/ /g,''))+'@pointure42.example</p></div></div>'+
+  return '<div class="page-head"><div><h1>Messagerie</h1><p>Adresse : '+esc(norm(S.user.prenom).replace(/ /g,''))+'@spartoo.example</p></div></div>'+
    '<div class="panel"><div class="tabs"><button class="tab'+(f==='in'?' on':'')+'" data-act="mail-folder" data-f="in">Réception</button><button class="tab'+(f==='out'?' on':'')+'" data-act="mail-folder" data-f="out">Envoyés</button></div>'+
    '<div class="mailbox'+(sel?' sel':'')+'"><div class="mlist">'+items+'</div>'+reader+'</div></div>';
 }
@@ -785,7 +794,7 @@ function bpDoc(o){
   var miss=missing.length?'<div><div class="lbl">Reliquat / articles non préparés</div><table class="t"><tbody>'+missing.map(function(l){var v=VM[l.sku];return '<tr><td class="ref">'+l.sku+'</td><td>'+esc(label(v))+'</td><td class="r">Manque '+(l.qty-p.rows[l.sku].qty)+' sur '+l.qty+'</td></tr>'}).join('')+'</tbody></table></div>':'';
   var foot=p.validated?'<div class="msg ok">Préparation validée : le stock a été diminué (voir Stock, Mouvements).</div>':
     '<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn primary" data-act="validate"'+(picks.length?'':' disabled')+'>Valider la préparation (sortie de stock)</button><button class="btn" data-act="copy-bp">Copier le bon en texte</button></div><div id="copy-msg" class="small muted"></div>';
-  return '<div class="doc" id="bp"><div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap"><div><div class="lbl">Pointure 42 · Entrepôt</div><h2>Bon de préparation BP-'+o.no.replace('CMD-','')+'</h2></div><div style="text-align:right"><div class="lbl">Édité le</div>'+fdt(Date.now())+'<br>par '+esc(S.user.prenom)+' ('+esc(S.user.classe)+')</div></div>'+
+  return '<div class="doc" id="bp"><div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap"><div><div class="lbl">Spartoo · Entrepôt</div><h2>Bon de préparation BP-'+o.no.replace('CMD-','')+'</h2></div><div style="text-align:right"><div class="lbl">Édité le</div>'+fdt(Date.now())+'<br>par '+esc(S.user.prenom)+' ('+esc(S.user.classe)+')</div></div>'+
    '<div class="cols"><div><div class="lbl">Commande</div><b>'+o.no+'</b> du '+fdate(o.date)+'</div><div><div class="lbl">Destinataire</div>'+esc(c.prenom+' '+c.nom)+'<br>'+esc(c.adr)+'<br>'+c.cp+' '+esc(c.ville)+'</div><div><div class="lbl">Transport</div>'+SHIP[o.ship][0]+'</div></div>'+
    (picks.length?'<div class="scroll"><table class="t"><thead><tr><th>N°</th><th>Emplacement</th><th>Réf.</th><th>Article</th><th>Couleur</th><th class="r">Taille</th><th class="r">Qté</th><th class="r">Prélevé</th></tr></thead><tbody>'+rows+'</tbody></table></div><div class="right"><b>'+picks.length+' ligne'+(picks.length>1?'s':'')+' · '+pairs+' paire'+(pairs>1?'s':'')+'</b></div>':'<p>Aucun article disponible : rien à préparer.</p>')+
    miss+'<div class="sign"><div><div class="lbl">Préparateur</div></div><div><div class="lbl">Contrôle emballage</div></div></div></div>'+foot;
@@ -821,8 +830,7 @@ function updateCatalog(){
   var q=norm($('#c-q').value),b=$('#c-b').value,c=$('#c-c').value;
   var res=MODELS.filter(function(m){return (!b||m.brand===b)&&(!c||m.cat===c)&&(!q||norm(m.brand+' '+m.name+' '+m.ref+' '+m.cat).indexOf(q)>=0)});
   $('#list').innerHTML=res.length?'<div class="grid">'+res.map(function(m){
-    var n=modelStock(m);
-    return '<button class="card" data-act="prod" data-ref="'+m.ref+'"><div class="pic">'+shoe(COLORS[m.colors[0]][1])+'</div><div class="info"><span class="brand">'+m.brand+' · '+m.cat+'</span><span class="nm">'+esc(m.name)+'</span><span class="ref mono small muted">'+m.ref+'</span><div class="row"><span class="price">'+eur(m.price)+'</span><span>'+m.colors.map(function(k){return '<span class="sw" style="background:'+COLORS[k][1]+';margin-right:3px" title="'+COLORS[k][0]+'"></span>'}).join('')+'</span></div><span class="small muted">'+n+' paires en stock</span></div></button>'
+    return '<button class="card" data-act="prod" data-ref="'+m.ref+'"><div class="pic">'+shoe(COLORS[m.colors[0]][1])+'</div><div class="info"><span class="brand">'+m.brand+' · '+m.cat+'</span><span class="nm">'+esc(m.name)+'</span><span class="ref mono small muted">'+m.ref+'</span><div class="row"><span class="price">'+eur(m.price)+'</span><span>'+m.colors.map(function(k){return '<span class="sw" style="background:'+COLORS[k][1]+';margin-right:3px" title="'+COLORS[k][0]+'"></span>'}).join('')+'</span></div></div></button>'
   }).join('')+'</div>':'<div class="panel"><div class="panel-b muted">Aucun modèle ne correspond.</div></div>';
 }
 function matrix(m){
@@ -842,8 +850,7 @@ function viewProduct(){
    '<dt>Prix de vente TTC</dt><dd><b class="mono">'+eur(m.price)+'</b></dd><dt>Prix de vente HT</dt><dd class="mono">'+eur(ht)+'</dd>'+
    '<dt>Prix d\'achat HT</dt><dd class="mono">'+eur(m.cost)+'</dd><dt>Marge brute</dt><dd class="mono">'+eur(ht-m.cost)+' ('+Math.round((ht-m.cost)/ht*100)+' %)</dd>'+
    '<dt>Tailles</dt><dd>'+m.s0+' à '+m.s1+'</dd><dt>Seuil d\'alerte</dt><dd>'+m.min+' paires par référence</dd>'+
-   '<dt>Fournisseur</dt><dd>'+esc(sp.name)+' <span class="mono small muted">'+sp.id+'</span><br><span class="small muted">Délai '+sp.delai+' jours · franco '+eur(sp.franco)+'</span></dd></dl></div></div></div>'+
-   '<div class="panel"><div class="panel-h"><h2>Stock par couleur et taille</h2><span class="small muted">Référence complète : <span class="mono">'+m.ref+'-COULEUR-TAILLE</span>, par exemple <span class="mono">'+m.ref+'-'+m.colors[0]+'-'+m.sizes[Math.floor(m.sizes.length/2)]+'</span></span></div>'+matrix(m)+'</div>';
+   '<dt>Fournisseur</dt><dd>'+esc(sp.name)+' <span class="mono small muted">'+sp.id+'</span><br><span class="small muted">Délai '+sp.delai+' jours · franco '+eur(sp.franco)+'</span></dd></dl></div></div></div>';
 }
 
 /* ---- Stock ---- */
@@ -1035,7 +1042,7 @@ function renderTeacher(){
   var tabs=[['list','Élèves'],['create','Créer une classe'],['send','Envoyer une commande']].map(function(t){return '<button class="tab'+(T.tab===t[0]?' on':'')+'" data-act="t-tab" data-t="'+t[0]+'">'+t[1]+'</button>'}).join('');
   var body=T.tab==='list'?tList(st,classes):(T.tab==='create'?tCreate():tSend(st,classes));
   app().innerHTML='<div style="max-width:1100px;margin:0 auto;padding:24px 16px 48px;display:grid;gap:18px">'+
-   '<div class="page-head"><div><div class="wordmark" style="color:var(--ink)">Logi<span style="color:var(--accent)">Sim</span> <span class="pill info" style="vertical-align:4px">Enseignant</span></div><h1 style="margin-top:6px">Espace enseignant</h1></div><div style="display:flex;gap:8px"><button class="btn" data-act="t-reload">Actualiser</button><button class="btn" data-act="logout">Quitter</button></div></div>'+
+   '<div class="page-head"><div><div class="wordmark" style="color:var(--ink)">'+logoMark(24,'var(--accent)')+'Logi<span style="color:var(--accent)">Sim</span> <span class="pill info" style="vertical-align:4px">Enseignant</span></div><h1 style="margin-top:6px">Espace enseignant</h1></div><div style="display:flex;gap:8px"><button class="btn" data-act="t-reload">Actualiser</button><button class="btn" data-act="logout">Quitter</button></div></div>'+
    '<div class="tabs">'+tabs+'</div>'+(T.msg?'<div class="msg info">'+T.msg+'</div>':'')+body+'</div>';
   if(T.tab==='send'){fillColors();renderTLines()}
 }
