@@ -33,6 +33,31 @@
   --ok:#5fcf8a;--ok-bg:#15301f;--warn:#e6b450;--warn-bg:#362a10;--crit:#ff8a80;--crit-bg:#3a1a18;
   --console-bg:#0e0a0a;
 }
+:root[data-org="techpro"]{
+  --bg:#f4f5f6;--surface:#ffffff;--surface2:#eceef0;--ink:#1c2126;--muted:#5b6570;--line:#dde1e5;--line2:#eceef0;
+  --accent:#3d4b5c;--accent-ink:#ffffff;--accent-soft:#e2e6ea;
+  --side:#161b20;--side-ink:#c9d0d6;--side-active:#2a333c;--side-line:#2b333b;
+  --ok:#1b7a44;--ok-bg:#dcf2e4;--warn:#8a5700;--warn-bg:#fbeac6;--crit:#b3261e;--crit-bg:#fadbd8;
+  --console-bg:#12161a;--console-ink:#e2e6ea;--console-dim:#8b96a1;--console-accent:#7c93a8;
+}
+@media (prefers-color-scheme: dark){
+  :root[data-org="techpro"]:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#15181b;--surface:#1e2226;--surface2:#252a2f;--ink:#e7eaed;--muted:#9aa4ad;--line:#343b41;--line2:#2b3136;
+    --accent:#8fa3b8;--accent-ink:#12161a;--accent-soft:#2a333c;
+    --side:#0f1215;--side-ink:#c9d0d6;--side-active:#242b31;--side-line:#2b3136;
+    --ok:#5fcf8a;--ok-bg:#15301f;--warn:#e6b450;--warn-bg:#362a10;--crit:#ff8a80;--crit-bg:#3a1a18;
+    --console-bg:#0c0f11;
+  }
+}
+:root[data-org="techpro"][data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#15181b;--surface:#1e2226;--surface2:#252a2f;--ink:#e7eaed;--muted:#9aa4ad;--line:#343b41;--line2:#2b3136;
+  --accent:#8fa3b8;--accent-ink:#12161a;--accent-soft:#2a333c;
+  --side:#0f1215;--side-ink:#c9d0d6;--side-active:#242b31;--side-line:#2b3136;
+  --ok:#5fcf8a;--ok-bg:#15301f;--warn:#e6b450;--warn-bg:#362a10;--crit:#ff8a80;--crit-bg:#3a1a18;
+  --console-bg:#0c0f11;
+}
 *{box-sizing:border-box}
 [hidden]{display:none!important}
 img{max-width:100%}
@@ -69,8 +94,10 @@ input[type=number]{width:78px;padding:5px 7px;font-family:var(--mono)}
 .login{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);min-height:100vh}
 .login-side{background:var(--side);color:var(--side-ink);padding:48px clamp(24px,5vw,64px);display:flex;flex-direction:column;justify-content:space-between;gap:32px}
 .wordmark{font-family:var(--cond);font-weight:600;font-size:30px;letter-spacing:.01em;color:#fff;display:flex;align-items:center;gap:11px}
-.wordmark span{color:#ff6b6b}
+.wordmark span{color:var(--accent)}
 .wordmark svg{flex:none}
+.wordmark .ver{font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:0;color:var(--muted);opacity:.7;align-self:flex-end;margin-bottom:3px}
+.side .wordmark .ver,.login-side .wordmark .ver{color:var(--side-ink);opacity:.55}
 .login-side h1{color:#fff;font-size:26px;max-width:16ch;margin-top:20px}
 .login-side p{max-width:38ch;color:var(--side-ink)}
 .login-facts{display:grid;gap:10px;font-family:var(--mono);font-size:12px;color:#c9a7ab;border-top:1px solid var(--side-line);padding-top:18px}
@@ -94,8 +121,8 @@ details.teacher .field{flex:1}
 .org b{color:#fff;font-weight:600;display:block;font-size:13px}
 .nav{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;text-align:left;border:0;background:transparent;color:var(--side-ink);padding:8px 10px;border-radius:5px;cursor:pointer;font-weight:500}
 .nav:hover{background:var(--side-active)}
-.nav.on{background:var(--side-active);color:#fff;box-shadow:inset 3px 0 0 #ff6b6b}
-.nav .n{background:#ff6b6b;color:#3a0b0d;border-radius:9px;font-size:11px;font-weight:600;padding:0 7px;min-width:20px;text-align:center}
+.nav.on{background:var(--side-active);color:#fff;box-shadow:inset 3px 0 0 var(--accent)}
+.nav .n{background:var(--accent);color:var(--accent-ink);border-radius:9px;font-size:11px;font-weight:600;padding:0 7px;min-width:20px;text-align:center}
 .nav-sep{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#6f8399;padding:12px 10px 4px}
 .content{min-width:0;display:flex;flex-direction:column}
 .top{display:flex;align-items:center;gap:12px;padding:10px clamp(16px,3vw,32px);background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
@@ -275,6 +302,10 @@ var store={
   set:function(k,v){mem[k]=v;try{localStorage.setItem(k,v)}catch(e){}},
   del:function(k){delete mem[k];try{localStorage.removeItem(k)}catch(e){}}
 };
+/* Numéro de version affiché à côté du logo. À incrémenter à chaque modification livrée :
+   v1.00, v1.01, v1.02... Dernier chiffre pour les petits changements, on peut monter le
+   premier (v1.xx -> v2.00) pour une refonte majeure. */
+var APP_VERSION='v1.00';
 function $(s,r){return (r||document).querySelector(s)}
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
 /* Logo LogiSim : un colis en contour. color peut être une couleur fixe (#ff6b6b sur fond sombre)
@@ -470,6 +501,7 @@ function useOrg(org){
   MODELS=reg.cat.MODELS;MM=reg.cat.MM;VARIANTS=reg.cat.VARIANTS;VM=reg.cat.VM;
   SUPPLIERS=reg.sup;SUP_BY_ID=reg.supById;CUSTOMERS=reg.cust;CM=reg.custById;
   if(typeof S!=='undefined'&&S)S.org=org;
+  if(typeof document!=='undefined')document.documentElement.dataset.org=org;
   return org;
 }
 var MODELS=CAT_P42.MODELS,MM=CAT_P42.MM,VARIANTS=CAT_P42.VARIANTS,VM=CAT_P42.VM;
@@ -766,7 +798,7 @@ function renderApp(){
   var todo=S.db.orders.filter(function(o){var s=ostatus(o)[0];return s==='À préparer'||s==='En cours'}).length;
   var org=ORGS.filter(function(o){return o.id===activeOrg()})[0]||ORGS[0],v=S.route.v;
   function nav(id,lbl,n,on){var act=(on||[id]).indexOf(v)>=0;return '<button class="nav'+(act?' on':'')+'" data-act="nav" data-v="'+id+'"><span>'+lbl+'</span>'+(n?'<span class="n">'+n+'</span>':'')+'</button>'}
-  app().innerHTML='<div class="shell"><aside class="side"><div class="wordmark">'+logoMark(24,'#ff6b6b')+'Logi<span>Sim</span></div>'+
+  app().innerHTML='<div class="shell"><aside class="side"><div class="wordmark">'+logoMark(24,'var(--accent)')+'Logi<span>Sim</span><span class="ver">'+APP_VERSION+'</span></div>'+
    '<div class="org"><b>'+org.name+'</b>'+esc(org.sub)+'</div>'+
    nav('home','Accueil')+nav('mail','Messagerie',unread)+nav('orders','Commandes',todo,['orders','order'])+
    '<div class="nav-sep">Articles</div>'+nav('catalog','Catalogue',0,['catalog','product'])+nav('stock','Stock')+
@@ -789,7 +821,7 @@ function renderMain(){
 
 /* ---- Connexion ---- */
 function renderLogin(msg){
-  app().innerHTML='<div class="login"><section class="login-side"><div><div class="wordmark" style="font-size:34px">'+logoMark(40,'#ff6b6b')+'Logi<span>Sim</span></div><p style="margin-top:16px">Espace de travail numérique adapté à la logistique.</p></div>'+
+  app().innerHTML='<div class="login"><section class="login-side"><div><div class="wordmark" style="font-size:34px">'+logoMark(40,'#ff6b6b')+'Logi<span>Sim</span><span class="ver" style="font-size:13px">'+APP_VERSION+'</span></div><p style="margin-top:16px">Espace de travail numérique adapté à la logistique.</p></div>'+
    '<div class="login-facts"><span>&gt; .getstock NK-AM270-NR-42</span><span>&gt; .getprice AD-STS</span><span>&gt; .lowstock 5</span></div></section>'+
    '<section class="login-main"><div class="login-card"><div><h1>Connexion</h1><p class="muted" style="margin-top:4px">Saisis le matricule remis par ton enseignant.</p></div>'+
    (msg?'<div class="msg err" role="alert">'+msg+'</div>':'')+
@@ -804,7 +836,7 @@ function renderOrgPick(uid,profile){
   var cards=open.map(function(o){return '<button class="btn ghost" data-act="org-pick" data-org="'+o.id+'" style="text-align:left;display:block;padding:16px;height:auto;white-space:normal">'+
     '<b style="font-size:16px">'+esc(o.name)+'</b>'+(profile.org===o.id?' <span class="pill ok">Reprendre</span>':'')+
     '<br><span class="muted">'+esc(o.sub)+'</span><br><span class="small muted">'+esc(o.exo)+'</span></button>'}).join('');
-  app().innerHTML='<div class="login"><section class="login-side"><div><div class="wordmark" style="font-size:34px">'+logoMark(40,'#ff6b6b')+'Logi<span>Sim</span></div><p style="margin-top:16px">Espace de travail numérique adapté à la logistique.</p></div></section>'+
+  app().innerHTML='<div class="login"><section class="login-side"><div><div class="wordmark" style="font-size:34px">'+logoMark(40,'#ff6b6b')+'Logi<span>Sim</span><span class="ver" style="font-size:13px">'+APP_VERSION+'</span></div><p style="margin-top:16px">Espace de travail numérique adapté à la logistique.</p></div></section>'+
    '<section class="login-main"><div class="login-card"><div><h1>Bonjour '+esc(profile.prenom)+'</h1><p class="muted" style="margin-top:4px">Quel exercice fais-tu aujourd\'hui ?</p></div>'+
    '<div style="display:grid;gap:10px">'+cards+'</div>'+
    '<div style="border-top:1px solid var(--line);padding-top:14px"><button class="btn ghost sm" data-act="logout" style="padding-left:0">← Changer de matricule</button></div>'+
@@ -1316,7 +1348,7 @@ function renderTeacher(){
   var tabs=[['list','Élèves'],['create','Créer une classe'],['send','Envoyer une commande'],['track','Suivi de l\'exercice']].map(function(t){return '<button class="tab'+(T.tab===t[0]?' on':'')+'" data-act="t-tab" data-t="'+t[0]+'">'+t[1]+'</button>'}).join('');
   var body=T.tab==='list'?tList(st,classes):(T.tab==='create'?tCreate():(T.tab==='track'?tTrack(st,classes):tSend(st,classes)));
   app().innerHTML='<div style="max-width:1100px;margin:0 auto;padding:24px 16px 48px;display:grid;gap:18px">'+
-   '<div class="page-head"><div><div class="wordmark" style="color:var(--ink)">'+logoMark(24,'var(--accent)')+'Logi<span style="color:var(--accent)">Sim</span> <span class="pill info" style="vertical-align:4px">Enseignant</span></div><h1 style="margin-top:6px">Espace enseignant</h1></div><div style="display:flex;gap:8px"><button class="btn" data-act="t-reload">Actualiser</button><button class="btn" data-act="logout">Quitter</button></div></div>'+
+   '<div class="page-head"><div><div class="wordmark" style="color:var(--ink)">'+logoMark(24,'var(--accent)')+'Logi<span style="color:var(--accent)">Sim</span><span class="ver">'+APP_VERSION+'</span> <span class="pill info" style="vertical-align:4px">Enseignant</span></div><h1 style="margin-top:6px">Espace enseignant</h1></div><div style="display:flex;gap:8px"><button class="btn" data-act="t-reload">Actualiser</button><button class="btn" data-act="logout">Quitter</button></div></div>'+
    '<div class="tabs">'+tabs+'</div>'+(T.msg?'<div class="msg info">'+T.msg+'</div>':'')+body+'</div>';
   if(T.tab==='send'){fillColors();renderTLines()}
 }
