@@ -527,12 +527,12 @@ function demoBackend(){
 }
 
 /* ============================== Base de l'élève ============================== */
-var S={user:null,uid:null,org:'p42',db:null,rev:0,lastJson:'',sync:'ok',mode:null,view:false,route:{v:'home'},mailSel:null,mailFolder:'in',tab:{},cons:[],hist:[],hi:0,tord:null,T:null,unwatch:[],wrongGuess:{},stockUnlocked:false,stockCodeErr:''};
+var S={user:null,uid:null,org:'p42',db:null,rev:0,lastJson:'',sync:'ok',mode:null,view:false,route:{v:'home'},mailSel:null,mailFolder:'in',tab:{},cons:[],hist:[],hi:0,tord:null,T:null,unwatch:[],wrongGuess:{},wrongPrep:{},stockUnlocked:false,stockCodeErr:''};
 
 function newDB(u){
   var now=Date.now(),stock={};
   VARIANTS.forEach(function(v){stock[v.sku]=v.qty0});
-  var db={v:1,created:now,stock:stock,moves:[],mails:[],orders:[],seq:1};
+  var db={v:1,created:now,stock:stock,moves:[],mails:[],orders:[],seq:1,customers:[],suppliers:[]};
   var o1={no:'CMD-048213',date:now-3600e3*3,customerId:'C0007',ship:'COL',lines:[{sku:'NK-AM270-NR-42',qty:1},{sku:'AD-STS-BL-41',qty:2},{sku:'PM-SUE-NR-40',qty:1}]};
   addMail(db,{folder:'in',ts:now-3600e3*26,from:'M. Morin, responsable logistique',fromMail:'direction@spartoo.example',to:u.prenom,subject:'Bienvenue chez Spartoo : votre mission',kind:'text',
     text:'Bonjour '+u.prenom+',\n\nVous rejoignez l\'équipe logistique de Spartoo, boutique de chaussures en ligne. Chaque commande client arrive par mail dans cette messagerie.\n\nPour chaque commande, vous devez :\n1. l\'enregistrer,\n2. contrôler le stock de chaque ligne,\n3. éditer le bon de préparation,\n4. valider la préparation pour sortir les articles du stock.\n\nLa console (menu Console) vous permet d\'interroger la base avec des commandes comme .getstock REF. Tapez .help pour les voir toutes.\n\nBon courage,\nM. Morin'});
@@ -555,6 +555,14 @@ async function flush(){
 }
 function stockOf(sku){var q=S.db.stock[sku];return q==null?0:q}
 function logMove(sku,type,delta,ref){S.db.moves.push({ts:Date.now(),sku:sku,type:type,delta:delta,after:S.db.stock[sku],ref:ref||'Console',by:S.view?'Enseignant':S.user.prenom})}
+/* Clients et fournisseurs : le carnet global (marques réelles, particuliers fictifs) complété par
+   les fiches que l'élève crée lui-même via la console (.addclient / .addsupplier), propres à sa base. */
+function allCustomers(){return CUSTOMERS.concat((S.db&&S.db.customers)||[])}
+function allSuppliers(){return SUPPLIERS.concat((S.db&&S.db.suppliers)||[])}
+function nextCode(list,prefix,width){
+  var mx=0;list.forEach(function(x){var n=parseInt(String(x.id).replace(/\D/g,''),10);if(!isNaN(n)&&n>mx)mx=n});
+  return prefix+pad(mx+1,width);
+}
 
 function stopWatch(){S.unwatch.forEach(function(f){try{f()}catch(e){}});S.unwatch=[]}
 async function openBase(uid,profile,viewing){
@@ -565,7 +573,7 @@ async function openBase(uid,profile,viewing){
   if(fresh)db=newDB(profile);
   stopWatch();
   S.uid=uid;S.user=profile;S.org=org;S.db=db;S.rev=(st&&st.rev)||0;S.lastJson=st&&!fresh?st.json:'';S.view=!!viewing;S.sync='ok';
-  S.route={v:'home'};S.mailSel=null;S.mailFolder='in';S.tab={};S.wrongGuess={};S.stockUnlocked=false;S.stockCodeErr='';
+  S.route={v:'home'};S.mailSel=null;S.mailFolder='in';S.tab={};S.wrongGuess={};S.wrongPrep={};S.stockUnlocked=false;S.stockCodeErr='';
   S.cons=[{cmd:null,html:'<span class="dim">Console LogiSim. Tape <b>.help</b> pour la liste des commandes.</span>'}];
   if(fresh)saveDB();
   if(!viewing){
@@ -605,7 +613,7 @@ function ostatus(o){
 function ensurePrep(o){
   if(o.prep)return;
   o.prep={rows:{},doc:false,validated:false};
-  o.lines.forEach(function(l){o.prep.rows[l.sku]={checked:false,seen:null,qty:0}});
+  o.lines.forEach(function(l){o.prep.rows[l.sku]={checked:false,seen:null,qty:0,prepOk:false}});
 }
 function orderTable(o,withPrice){
   var h='<div class="scroll"><table class="t"><thead><tr><th>Réf.</th><th>Désignation</th><th>Couleur</th><th class="r">Taille</th><th class="r">Qté</th>'+(withPrice?'<th class="r">PU TTC</th><th class="r">Total</th>':'')+'</tr></thead><tbody>';
@@ -762,42 +770,72 @@ function viewOrder(){
   var o=getOrder(S.route.no);if(!o)return viewOrders();
   ensurePrep(o);
   var c=CM[o.customerId],t=orderTotals(o),s=ostatus(o),p=o.prep,locked=p.validated;
-  var allChecked=o.lines.every(function(l){return p.rows[l.sku].checked});
+  var allPrepOk=o.lines.every(function(l){return p.rows[l.sku].prepOk});
+  var statusOpts=[['','Choisir…'],['ok','Complet'],['warn','Partiel'],['crit','Rupture']];
   var rows=o.lines.map(function(l){
-    var v=VM[l.sku],r=p.rows[l.sku],st='<span class="muted">—</span>';
-    if(r.checked)st=r.qty>=l.qty?'<span class="pill ok">Complet</span>':(r.qty===0?'<span class="pill crit">Rupture</span>':'<span class="pill warn">Partiel</span>');
-    else if(S.wrongGuess[l.sku]!=null)st='<span class="pill crit">Incorrect, réessaie</span>';
-    var maxq=Math.min(l.qty,r.seen||0);
-    var stockCell;
-    if(r.checked)stockCell='<b class="mono">'+r.seen+'</b>';
-    else if(locked)stockCell='—';
-    else stockCell='<form class="vform" data-act="verify-stock" data-sku="'+l.sku+'" style="display:flex;gap:4px;justify-content:flex-end"><input type="number" min="0" required id="vin-'+l.sku+'" value="'+(S.wrongGuess[l.sku]!=null?S.wrongGuess[l.sku]:'')+'" style="width:64px" aria-label="Quantité trouvée pour '+l.sku+'"><button class="btn sm" type="submit">Vérifier</button></form>';
+    var v=VM[l.sku],r=p.rows[l.sku],stockCell,locCell,prepCell,statusCell;
+    if(!r.checked){
+      stockCell=locked?'—':'<form class="vform" data-act="verify-stock" data-sku="'+l.sku+'" style="display:flex;gap:4px;justify-content:flex-end"><input type="number" min="0" required id="vin-'+l.sku+'" value="'+(S.wrongGuess[l.sku]!=null?S.wrongGuess[l.sku]:'')+'" style="width:64px" aria-label="Quantité trouvée pour '+l.sku+'"><button class="btn sm" type="submit">Vérifier</button></form>';
+      locCell='—';
+      prepCell='—';
+      statusCell=S.wrongGuess[l.sku]!=null?'<span class="pill crit">Incorrect, réessaie</span>':'<span class="muted">—</span>';
+    }else if(!r.prepOk&&!locked){
+      var wp=S.wrongPrep[l.sku]||{};
+      stockCell='<b class="mono">'+r.seen+'</b>';
+      locCell='<input type="text" id="plin-'+l.sku+'" value="'+esc(wp.loc!=null?wp.loc:'')+'" placeholder="ex. B-01-1" style="width:110px" aria-label="Emplacement pour '+l.sku+'">';
+      prepCell='<input type="number" min="0" id="pqin-'+l.sku+'" value="'+(wp.qty!=null?wp.qty:'')+'" style="width:64px" aria-label="Quantité à préparer pour '+l.sku+'">';
+      statusCell='<div style="display:flex;gap:4px;justify-content:flex-end;align-items:center"><select id="psel-'+l.sku+'" aria-label="Statut pour '+l.sku+'">'+statusOpts.map(function(op){return '<option value="'+op[0]+'"'+((wp.sel||'')===op[0]?' selected':'')+'>'+op[1]+'</option>'}).join('')+'</select><button class="btn sm" type="button" data-act="verify-prep" data-sku="'+l.sku+'">Vérifier</button></div>'+(wp.msg?'<div class="small" style="color:var(--crit);text-align:right;margin-top:4px">'+esc(wp.msg)+'</div>':'');
+    }else{
+      stockCell=locked?'—':'<b class="mono">'+r.seen+'</b>';
+      locCell=locked?'—':v.loc;
+      prepCell=r.qty;
+      statusCell=r.qty>=l.qty?'<span class="pill ok">Complet</span>':(r.qty===0?'<span class="pill crit">Rupture</span>':'<span class="pill warn">Partiel</span>');
+    }
     return '<tr><td class="ref">'+l.sku+'</td><td>'+esc(label(v))+'<div class="small muted">'+COLORS[v.color][0]+' · T.'+v.size+'</div></td><td class="r">'+l.qty+'</td>'+
      '<td class="r">'+stockCell+'</td>'+
-     '<td class="ref">'+(r.checked?v.loc:'—')+'</td>'+
-     '<td class="r">'+(r.checked&&!locked?'<input type="number" min="0" max="'+maxq+'" value="'+r.qty+'" data-qty="'+l.sku+'" aria-label="Quantité à préparer">':(r.checked?r.qty:'—'))+'</td><td>'+st+'</td></tr>'
+     '<td class="ref">'+locCell+'</td>'+
+     '<td class="r">'+prepCell+'</td><td>'+statusCell+'</td></tr>'
   }).join('');
   var doc=p.doc?bpDoc(o):'';
   return '<div class="page-head"><div><button class="btn sm ghost" data-act="nav" data-v="orders" style="padding-left:0">← Commandes</button><h1>Commande <span class="mono">'+o.no+'</span> <span class="pill '+s[1]+'" style="vertical-align:3px">'+s[0]+'</span></h1></div></div>'+
    '<div class="panel"><div class="panel-b"><dl class="dl"><dt>Client</dt><dd>'+esc(c.prenom+' '+c.nom)+' <span class="mono small muted">'+c.id+'</span></dd><dt>Adresse</dt><dd>'+esc(c.adr)+', '+c.cp+' '+esc(c.ville)+'</dd><dt>Livraison</dt><dd>'+SHIP[o.ship][0]+'</dd><dt>Date</dt><dd>'+fdt(o.date)+'</dd><dt>Montant</dt><dd>'+eur(t.total)+' TTC, '+t.pairs+' paire'+(t.pairs>1?'s':'')+'</dd></dl></div></div>'+
-   '<div class="panel"><div class="panel-h"><h2>Contrôle du stock</h2><span class="small muted">Trouve le stock réel de chaque référence avec la console (<span class="mono">.getstock REF</span>) puis saisis la quantité trouvée. Ajuste ensuite la quantité à préparer si le stock est insuffisant.</span></div>'+
+   '<div class="panel"><div class="panel-h"><h2>Contrôle du stock</h2><span class="small muted">Trouve le stock réel de chaque référence avec la console (<span class="mono">.getstock REF</span>) et son emplacement (<span class="mono">.getlocation REF</span>), saisis la quantité trouvée. Complète ensuite l\'emplacement, décide de la quantité à préparer et du statut de la ligne (Complet, Partiel ou Rupture), puis vérifie ta réponse.</span></div>'+
    '<div class="scroll"><table class="t lines-t"><thead><tr><th>Réf.</th><th>Article</th><th class="r">Commandé</th><th class="r">Stock trouvé</th><th>Emplacement</th><th class="r">À préparer</th><th>Statut</th></tr></thead><tbody>'+rows+'</tbody></table></div>'+
-   '<div class="panel-b" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button class="btn primary" data-act="gen-doc"'+(allChecked?'':' disabled')+'>'+(p.doc?'Régénérer le bon de préparation':'Éditer le bon de préparation')+'</button>'+
-   (!allChecked?'<span class="small muted">Contrôle toutes les lignes pour continuer.</span>':'')+'</div></div>'+
+   '<div class="panel-b" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button class="btn primary" data-act="gen-doc"'+(allPrepOk?'':' disabled')+'>'+(p.doc?'Régénérer le bon de préparation':'Éditer le bon de préparation')+'</button>'+
+   (!allPrepOk?'<span class="small muted">Contrôle et valide toutes les lignes pour continuer.</span>':'')+'</div></div>'+
    doc;
 }
 function verifyStock(sku){
-  var o=getOrder(S.route.no),r=o.prep.rows[sku],l=o.lines.filter(function(x){return x.sku===sku})[0];
+  var o=getOrder(S.route.no),r=o.prep.rows[sku];
   var input=$('#vin-'+CSS.escape(sku)),val=parseInt(input?input.value:'',10);
   if(isNaN(val)||val<0){S.wrongGuess[sku]=input?input.value:'';renderMain();focusVerify(sku);return}
   var real=stockOf(sku);
   if(val===real){
-    delete S.wrongGuess[sku];r.checked=true;r.seen=real;r.qty=Math.min(l.qty,real);saveDB();renderApp();
+    delete S.wrongGuess[sku];r.checked=true;r.seen=real;saveDB();renderApp();
   }else{
     S.wrongGuess[sku]=val;renderMain();focusVerify(sku);
   }
 }
 function focusVerify(sku){var i=$('#vin-'+CSS.escape(sku));if(i){i.focus();i.select()}}
+function normLoc(s){return String(s||'').trim().toUpperCase().replace(/\s+/g,'')}
+function verifyPrep(sku){
+  var o=getOrder(S.route.no),r=o.prep.rows[sku],l=o.lines.filter(function(x){return x.sku===sku})[0],v=VM[sku];
+  var lin=$('#plin-'+CSS.escape(sku)),qin=$('#pqin-'+CSS.escape(sku)),sel=$('#psel-'+CSS.escape(sku));
+  var lraw=lin?lin.value:'',qraw=qin?qin.value:'',qval=parseInt(qraw,10),sval=sel?sel.value:'';
+  if(!lraw.trim()){S.wrongPrep[sku]={loc:lraw,qty:qraw,sel:sval,msg:'Indique l\'emplacement (trouve-le avec .getlocation '+sku+').'};renderMain();focusLoc(sku);return}
+  if(!sval){S.wrongPrep[sku]={loc:lraw,qty:qraw,sel:sval,msg:'Choisis un statut dans la liste.'};renderMain();return}
+  if(qraw===''||isNaN(qval)||qval<0){S.wrongPrep[sku]={loc:lraw,qty:qraw,sel:sval,msg:'Indique une quantité à préparer (nombre entier positif ou 0).'};renderMain();focusPrep(sku);return}
+  var correctQty=Math.min(l.qty,r.seen),correctStatus=r.seen>=l.qty?'ok':(r.seen===0?'crit':'warn'),locOk=normLoc(lraw)===normLoc(v.loc);
+  if(locOk&&qval===correctQty&&sval===correctStatus){
+    delete S.wrongPrep[sku];r.qty=qval;r.prepOk=true;o.prep.doc=false;saveDB();renderApp();
+  }else{
+    var msg=!locOk?'Emplacement incorrect. Vérifie avec .getlocation '+sku+'.':'Quantité ou statut incorrect. Compare le stock trouvé ('+r.seen+') à la quantité commandée ('+l.qty+').';
+    S.wrongPrep[sku]={loc:lraw,qty:qraw,sel:sval,msg:msg};renderMain();
+    if(!locOk)focusLoc(sku);else focusPrep(sku);
+  }
+}
+function focusPrep(sku){var i=$('#pqin-'+CSS.escape(sku));if(i){i.focus();i.select()}}
+function focusLoc(sku){var i=$('#plin-'+CSS.escape(sku));if(i){i.focus();i.select()}}
 function setQty(sku,val){
   var o=getOrder(S.route.no),r=o.prep.rows[sku],l=o.lines.filter(function(x){return x.sku===sku})[0];
   var q=Math.max(0,Math.min(parseInt(val,10)||0,l.qty,r.seen));r.qty=q;o.prep.doc=false;saveDB();renderApp();
@@ -820,7 +858,7 @@ function genDoc(){var o=getOrder(S.route.no);o.prep.doc=true;saveDB();renderApp(
 function validateBP(){
   var o=getOrder(S.route.no),p=o.prep,errs=[];
   o.lines.forEach(function(l){var r=p.rows[l.sku];if(r.qty>stockOf(l.sku))errs.push(l.sku)});
-  if(errs.length){var b=$('#copy-msg');if(b)b.innerHTML='<span class="msg err">Le stock a changé pour : '+errs.join(', ')+'. Contrôle de nouveau ces lignes.</span>';errs.forEach(function(k){p.rows[k].checked=false});p.doc=false;saveDB();return renderApp()}
+  if(errs.length){var b=$('#copy-msg');if(b)b.innerHTML='<span class="msg err">Le stock a changé pour : '+errs.join(', ')+'. Contrôle de nouveau ces lignes.</span>';errs.forEach(function(k){p.rows[k].checked=false;p.rows[k].prepOk=false});p.doc=false;saveDB();return renderApp()}
   var complete=true;
   o.lines.forEach(function(l){var r=p.rows[l.sku];if(r.qty>0){S.db.stock[l.sku]-=r.qty;logMove(l.sku,'Sortie : préparation',-r.qty,'BP-'+o.no.replace('CMD-',''))}if(r.qty<l.qty)complete=false});
   p.validated=true;p.complete=complete;p.at=Date.now();saveDB();renderApp();
@@ -912,17 +950,17 @@ function updateStock(){
 /* ---- Tiers ---- */
 function viewTiers(){
   var tab=S.tab.tiers||'cli';
-  return '<div class="page-head"><div><h1>Clients et fournisseurs</h1><p>'+CUSTOMERS.length+' clients particuliers, '+SUPPLIERS.length+' fournisseurs (marques).</p></div></div>'+
+  return '<div class="page-head"><div><h1>Clients et fournisseurs</h1><p>'+allCustomers().length+' clients particuliers, '+allSuppliers().length+' fournisseurs (marques).</p></div></div>'+
    '<div class="tabs"><button class="tab'+(tab==='cli'?' on':'')+'" data-act="tab" data-k="tiers" data-t="cli">Clients</button><button class="tab'+(tab==='fou'?' on':'')+'" data-act="tab" data-k="tiers" data-t="fou">Fournisseurs</button></div>'+
    '<div class="filters"><div class="field grow"><label for="t-q">Recherche</label><input id="t-q" type="text" data-filter="tiers" placeholder="Nom, ville, code…"></div></div><div id="list"></div>';
 }
 function updateTiers(){
   var tab=S.tab.tiers||'cli',q=norm($('#t-q').value),h;
   if(tab==='cli'){
-    var r=CUSTOMERS.filter(function(c){return !q||norm(c.id+' '+c.prenom+' '+c.nom+' '+c.ville+' '+c.cp+' '+c.email).indexOf(q)>=0});
+    var r=allCustomers().filter(function(c){return !q||norm(c.id+' '+c.prenom+' '+c.nom+' '+c.ville+' '+c.cp+' '+c.email).indexOf(q)>=0});
     h='<table class="t"><thead><tr><th>Code</th><th>Nom</th><th>E-mail</th><th>Téléphone</th><th>Adresse</th><th>Client depuis</th><th class="r">Commandes</th></tr></thead><tbody>'+r.map(function(c){return '<tr><td class="ref">'+c.id+'</td><td>'+esc(c.prenom+' '+c.nom)+'</td><td class="ref">'+c.email+'</td><td class="ref">'+c.tel+'</td><td>'+esc(c.adr)+', '+c.cp+' '+esc(c.ville)+'</td><td>'+fdate(c.since)+'</td><td class="r">'+c.nb+'</td></tr>'}).join('')+'</tbody></table>';
   }else{
-    var f=SUPPLIERS.filter(function(s){return !q||norm(s.id+' '+s.brand+' '+s.name+' '+s.ville).indexOf(q)>=0});
+    var f=allSuppliers().filter(function(s){return !q||norm(s.id+' '+s.brand+' '+s.name+' '+s.ville).indexOf(q)>=0});
     h='<table class="t"><thead><tr><th>Code</th><th>Marque</th><th>Société</th><th>Contact</th><th>Téléphone</th><th>E-mail</th><th>Adresse</th><th class="r">Délai</th><th class="r">Franco</th><th>Paiement</th></tr></thead><tbody>'+f.map(function(s){return '<tr><td class="ref">'+s.id+'</td><td><b>'+s.brand+'</b></td><td>'+esc(s.name)+'</td><td>'+esc(s.contact)+'</td><td class="ref">'+s.tel+'</td><td class="ref">'+s.email+'</td><td>'+esc(s.adr)+', '+s.cp+' '+esc(s.ville)+'</td><td class="r">'+s.delai+' j</td><td class="r">'+eur(s.franco)+'</td><td>'+s.pay+'</td></tr>'}).join('')+'</tbody></table>';
   }
   $('#list').innerHTML='<div class="panel"><div class="scroll">'+h+'</div></div>';
@@ -994,16 +1032,44 @@ var CMDS={
  }],
  getclient:['.getclient <code ou nom>','Fiche client',function(a){
    var q=norm(a.join(' '));if(!q)throw new Error('Exemple : .getclient C0007 ou .getclient dubois');
-   var r=CUSTOMERS.filter(function(c){return norm(c.id+' '+c.prenom+' '+c.nom).indexOf(q)>=0}).slice(0,10);
+   var r=allCustomers().filter(function(c){return norm(c.id+' '+c.prenom+' '+c.nom).indexOf(q)>=0}).slice(0,10);
    if(!r.length)throw new Error('Aucun client trouvé.');
    return r.length===1?kv([['Code',r[0].id],['Nom',esc(r[0].prenom+' '+r[0].nom)],['E-mail',r[0].email],['Téléphone',r[0].tel],['Adresse',esc(r[0].adr)+', '+r[0].cp+' '+esc(r[0].ville)],['Client depuis',fdate(r[0].since)],['Commandes',r[0].nb]]):
      tbl(['Code','Nom','Ville'],r.map(function(c){return [c.id,esc(c.prenom+' '+c.nom),esc(c.ville)]}));
  }],
  getsupplier:['.getsupplier <code ou marque>','Fiche fournisseur',function(a){
    var q=norm(a.join(' '));if(!q)throw new Error('Exemple : .getsupplier nike ou .getsupplier F002');
-   var r=SUPPLIERS.filter(function(s){return norm(s.id+' '+s.brand+' '+s.name).indexOf(q)>=0});
+   var r=allSuppliers().filter(function(s){return norm(s.id+' '+s.brand+' '+s.name).indexOf(q)>=0});
    if(!r.length)throw new Error('Aucun fournisseur trouvé.');
    return r.map(function(s){return kv([['Code',s.id],['Marque',s.brand],['Société',esc(s.name)],['Contact',esc(s.contact)+' · '+s.tel],['E-mail',s.email],['Adresse',esc(s.adr)+', '+s.cp+' '+esc(s.ville)],['Délai',s.delai+' jours'],['Franco',eur(s.franco)],['Paiement',s.pay]])}).join('<hr style="border:0;border-top:1px solid #3a262a;width:100%">');
+ }],
+ addclient:['.addclient <prénom nom> ; <e-mail> ; <téléphone> ; <adresse> ; <code postal> ; <ville>','Crée un nouveau client particulier',function(a){
+   var parts=a.join(' ').split(';').map(function(x){return x.trim()});
+   if(parts.length<6||parts.some(function(x){return !x}))throw new Error('Syntaxe : .addclient <prénom nom> ; <e-mail> ; <téléphone> ; <adresse> ; <code postal> ; <ville>\nExemple : .addclient Sophie Nguyen ; sophie.nguyen@mail.example ; 06 12 34 56 78 ; 8 rue des Acacias ; 44000 ; Nantes');
+   var nm=parts[0].split(/\s+/).filter(Boolean);
+   if(nm.length<2)throw new Error('Indique le prénom et le nom, séparés par un espace, avant le premier « ; ».');
+   var prenom=nm[0],nom=nm.slice(1).join(' '),email=parts[1],tel=parts[2],adr=parts[3],cp=parts[4],ville=parts[5];
+   if(!/^[0-9]{5}$/.test(cp))throw new Error('Le code postal doit comporter 5 chiffres.');
+   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))throw new Error('E-mail invalide : '+esc(email));
+   if(!S.db.customers)S.db.customers=[];
+   var id=nextCode(allCustomers(),'C',4);
+   var cu={id:id,prenom:prenom,nom:nom,email:email,tel:tel,adr:adr,cp:cp,ville:ville,since:Date.now(),nb:0};
+   S.db.customers.push(cu);saveDB();
+   return '<div class="msg ok" style="margin-bottom:10px">Nouveau client créé.</div>'+kv([['Code','<b>'+id+'</b>'],['Nom',esc(prenom+' '+nom)],['E-mail',esc(email)],['Téléphone',esc(tel)],['Adresse',esc(adr)+', '+esc(cp)+' '+esc(ville)]]);
+ }],
+ addsupplier:['.addsupplier <marque> ; <société> ; <contact> ; <téléphone> ; <e-mail> ; <adresse> ; <cp> ; <ville> ; <délai j.> ; <franco €> ; <paiement>','Crée un nouveau fournisseur',function(a){
+   var parts=a.join(' ').split(';').map(function(x){return x.trim()});
+   if(parts.length<11||parts.some(function(x){return !x}))throw new Error('Syntaxe : .addsupplier <marque> ; <société> ; <contact> ; <téléphone> ; <e-mail> ; <adresse> ; <cp> ; <ville> ; <délai en jours> ; <franco en €> ; <conditions de paiement>\nExemple : .addsupplier Salomon ; Salomon France, service pro ; Nadia Costa ; 04 76 55 10 20 ; pro@salomon-pro.example ; 12 rue de la Montagne ; 38000 ; Grenoble ; 5 ; 900 ; 45 jours net');
+   var brand=parts[0],name=parts[1],contact=parts[2],tel=parts[3],email=parts[4],adr=parts[5],cp=parts[6],ville=parts[7],delai=parseInt(parts[8],10),franco=parseFloat(parts[9].replace(',','.')),pay=parts[10];
+   if(!/^[0-9]{5}$/.test(cp))throw new Error('Le code postal doit comporter 5 chiffres.');
+   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))throw new Error('E-mail invalide : '+esc(email));
+   if(isNaN(delai)||delai<0)throw new Error('Le délai doit être un nombre de jours (ex. 5).');
+   if(isNaN(franco)||franco<0)throw new Error('Le franco de port doit être un montant en euros (ex. 900).');
+   if(!S.db.suppliers)S.db.suppliers=[];
+   var id=nextCode(allSuppliers(),'F',3);
+   var sp={id:id,brand:brand,name:name,adr:adr,cp:cp,ville:ville,contact:contact,tel:tel,email:email,delai:delai,franco:franco,pay:pay};
+   S.db.suppliers.push(sp);saveDB();
+   return '<div class="msg ok" style="margin-bottom:10px">Nouveau fournisseur créé.</div>'+kv([['Code','<b>'+id+'</b>'],['Marque',esc(brand)],['Société',esc(name)],['Contact',esc(contact)+' · '+esc(tel)],['E-mail',esc(email)],['Adresse',esc(adr)+', '+esc(cp)+' '+esc(ville)],['Délai',delai+' jours'],['Franco',eur(franco)],['Paiement',esc(pay)]]);
  }],
  getorder:['.getorder <n°>','Détail d\'une commande enregistrée',function(a){
    var q=String(a[0]||'').toUpperCase();if(!q)throw new Error('Exemple : .getorder CMD-048213');
@@ -1224,6 +1290,7 @@ document.addEventListener('click',function(e){
    case 'order-open':go('order',{no:d.no});break;
    case 'gen-doc':genDoc();break;
    case 'validate':validateBP();break;
+   case 'verify-prep':verifyPrep(d.sku);break;
    case 'copy-bp':copyBP();break;
    case 'prod':go('product',{ref:d.ref});break;
    case 'tab':S.tab[d.k]=d.t;renderMain();break;
