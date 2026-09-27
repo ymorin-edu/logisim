@@ -462,6 +462,8 @@ async function fbBackend(){
         await b.commit();
       }
     },
+    getClassCode:async function(code){var s=await FS.getDoc(ref('classes',code));return s.exists()?(s.data().stockCode||''):''},
+    setClassCode:async function(code,stockCode){return FS.setDoc(ref('classes',code),{stockCode:stockCode||'',updatedAt:Date.now()},{merge:true})},
     deleteStudents:async function(items){
       var refs=[];
       for(var i=0;i<items.length;i++){
@@ -514,6 +516,8 @@ function demoBackend(){
       uids.forEach(function(u){(a[u]=a[u]||[]).push({id:'m'+Math.random().toString(36).slice(2,10),json:json})});
       s('inbox',a);uids.forEach(fire);
     },
+    getClassCode:async function(code){return g('classcodes',{})[code]||''},
+    setClassCode:async function(code,stockCode){var a=g('classcodes',{});a[code]=stockCode||'';s('classcodes',a)},
     deleteStudents:async function(items){
       var st=g('students',{}),stt=g('state',{}),ib=g('inbox',{});
       items.forEach(function(it){delete st[it.uid];delete stt[it.uid+'/'+(it.org||'p42')];delete ib[it.uid]});
@@ -523,7 +527,7 @@ function demoBackend(){
 }
 
 /* ============================== Base de l'élève ============================== */
-var S={user:null,uid:null,org:'p42',db:null,rev:0,lastJson:'',sync:'ok',mode:null,view:false,route:{v:'home'},mailSel:null,mailFolder:'in',tab:{},cons:[],hist:[],hi:0,tord:null,T:null,unwatch:[]};
+var S={user:null,uid:null,org:'p42',db:null,rev:0,lastJson:'',sync:'ok',mode:null,view:false,route:{v:'home'},mailSel:null,mailFolder:'in',tab:{},cons:[],hist:[],hi:0,tord:null,T:null,unwatch:[],wrongGuess:{},stockUnlocked:false,stockCodeErr:''};
 
 function newDB(u){
   var now=Date.now(),stock={};
@@ -561,7 +565,7 @@ async function openBase(uid,profile,viewing){
   if(fresh)db=newDB(profile);
   stopWatch();
   S.uid=uid;S.user=profile;S.org=org;S.db=db;S.rev=(st&&st.rev)||0;S.lastJson=st&&!fresh?st.json:'';S.view=!!viewing;S.sync='ok';
-  S.route={v:'home'};S.mailSel=null;S.mailFolder='in';S.tab={};
+  S.route={v:'home'};S.mailSel=null;S.mailFolder='in';S.tab={};S.wrongGuess={};S.stockUnlocked=false;S.stockCodeErr='';
   S.cons=[{cmd:null,html:'<span class="dim">Console LogiSim. Tape <b>.help</b> pour la liste des commandes.</span>'}];
   if(fresh)saveDB();
   if(!viewing){
@@ -762,25 +766,38 @@ function viewOrder(){
   var rows=o.lines.map(function(l){
     var v=VM[l.sku],r=p.rows[l.sku],st='<span class="muted">—</span>';
     if(r.checked)st=r.qty>=l.qty?'<span class="pill ok">Complet</span>':(r.qty===0?'<span class="pill crit">Rupture</span>':'<span class="pill warn">Partiel</span>');
+    else if(S.wrongGuess[l.sku]!=null)st='<span class="pill crit">Incorrect, réessaie</span>';
     var maxq=Math.min(l.qty,r.seen||0);
+    var stockCell;
+    if(r.checked)stockCell='<b class="mono">'+r.seen+'</b>';
+    else if(locked)stockCell='—';
+    else stockCell='<form class="vform" data-act="verify-stock" data-sku="'+l.sku+'" style="display:flex;gap:4px;justify-content:flex-end"><input type="number" min="0" required id="vin-'+l.sku+'" value="'+(S.wrongGuess[l.sku]!=null?S.wrongGuess[l.sku]:'')+'" style="width:64px" aria-label="Quantité trouvée pour '+l.sku+'"><button class="btn sm" type="submit">Vérifier</button></form>';
     return '<tr><td class="ref">'+l.sku+'</td><td>'+esc(label(v))+'<div class="small muted">'+COLORS[v.color][0]+' · T.'+v.size+'</div></td><td class="r">'+l.qty+'</td>'+
-     '<td class="r">'+(r.checked?'<b class="mono">'+r.seen+'</b>':(locked?'—':'<button class="btn sm" data-act="chk" data-sku="'+l.sku+'">Contrôler</button>'))+'</td>'+
+     '<td class="r">'+stockCell+'</td>'+
      '<td class="ref">'+(r.checked?v.loc:'—')+'</td>'+
      '<td class="r">'+(r.checked&&!locked?'<input type="number" min="0" max="'+maxq+'" value="'+r.qty+'" data-qty="'+l.sku+'" aria-label="Quantité à préparer">':(r.checked?r.qty:'—'))+'</td><td>'+st+'</td></tr>'
   }).join('');
   var doc=p.doc?bpDoc(o):'';
   return '<div class="page-head"><div><button class="btn sm ghost" data-act="nav" data-v="orders" style="padding-left:0">← Commandes</button><h1>Commande <span class="mono">'+o.no+'</span> <span class="pill '+s[1]+'" style="vertical-align:3px">'+s[0]+'</span></h1></div></div>'+
    '<div class="panel"><div class="panel-b"><dl class="dl"><dt>Client</dt><dd>'+esc(c.prenom+' '+c.nom)+' <span class="mono small muted">'+c.id+'</span></dd><dt>Adresse</dt><dd>'+esc(c.adr)+', '+c.cp+' '+esc(c.ville)+'</dd><dt>Livraison</dt><dd>'+SHIP[o.ship][0]+'</dd><dt>Date</dt><dd>'+fdt(o.date)+'</dd><dt>Montant</dt><dd>'+eur(t.total)+' TTC, '+t.pairs+' paire'+(t.pairs>1?'s':'')+'</dd></dl></div></div>'+
-   '<div class="panel"><div class="panel-h"><h2>Contrôle du stock</h2><span class="small muted">Contrôle chaque ligne, puis ajuste la quantité à préparer si le stock est insuffisant.</span></div>'+
-   '<div class="scroll"><table class="t lines-t"><thead><tr><th>Réf.</th><th>Article</th><th class="r">Commandé</th><th class="r">En stock</th><th>Emplacement</th><th class="r">À préparer</th><th>Statut</th></tr></thead><tbody>'+rows+'</tbody></table></div>'+
+   '<div class="panel"><div class="panel-h"><h2>Contrôle du stock</h2><span class="small muted">Trouve le stock réel de chaque référence avec la console (<span class="mono">.getstock REF</span>) puis saisis la quantité trouvée. Ajuste ensuite la quantité à préparer si le stock est insuffisant.</span></div>'+
+   '<div class="scroll"><table class="t lines-t"><thead><tr><th>Réf.</th><th>Article</th><th class="r">Commandé</th><th class="r">Stock trouvé</th><th>Emplacement</th><th class="r">À préparer</th><th>Statut</th></tr></thead><tbody>'+rows+'</tbody></table></div>'+
    '<div class="panel-b" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button class="btn primary" data-act="gen-doc"'+(allChecked?'':' disabled')+'>'+(p.doc?'Régénérer le bon de préparation':'Éditer le bon de préparation')+'</button>'+
    (!allChecked?'<span class="small muted">Contrôle toutes les lignes pour continuer.</span>':'')+'</div></div>'+
    doc;
 }
-function checkLine(sku){
+function verifyStock(sku){
   var o=getOrder(S.route.no),r=o.prep.rows[sku],l=o.lines.filter(function(x){return x.sku===sku})[0];
-  r.checked=true;r.seen=stockOf(sku);r.qty=Math.min(l.qty,r.seen);saveDB();renderApp();
+  var input=$('#vin-'+CSS.escape(sku)),val=parseInt(input?input.value:'',10);
+  if(isNaN(val)||val<0){S.wrongGuess[sku]=input?input.value:'';renderMain();focusVerify(sku);return}
+  var real=stockOf(sku);
+  if(val===real){
+    delete S.wrongGuess[sku];r.checked=true;r.seen=real;r.qty=Math.min(l.qty,real);saveDB();renderApp();
+  }else{
+    S.wrongGuess[sku]=val;renderMain();focusVerify(sku);
+  }
 }
+function focusVerify(sku){var i=$('#vin-'+CSS.escape(sku));if(i){i.focus();i.select()}}
 function setQty(sku,val){
   var o=getOrder(S.route.no),r=o.prep.rows[sku],l=o.lines.filter(function(x){return x.sku===sku})[0];
   var q=Math.max(0,Math.min(parseInt(val,10)||0,l.qty,r.seen));r.qty=q;o.prep.doc=false;saveDB();renderApp();
@@ -855,6 +872,14 @@ function viewProduct(){
 
 /* ---- Stock ---- */
 function viewStock(){
+  if(!S.stockUnlocked&&!S.view){
+    return '<div class="page-head"><div><h1>Stock</h1><p>Accès verrouillé.</p></div></div>'+
+     '<div class="panel"><div class="panel-b" style="max-width:440px;display:grid;gap:14px">'+
+     '<p>Pour connaître le stock d\'une référence précise, utilise la console (<span class="mono">.getstock REF</span>). La vue d\'ensemble de l\'onglet Stock est verrouillée : demande le code à ton enseignant pour la consulter.</p>'+
+     (S.stockCodeErr?'<div class="msg err" role="alert">'+esc(S.stockCodeErr)+'</div>':'')+
+     '<form id="stock-unlock-form" autocomplete="off"><div class="field"><label for="stock-code-in">Code d\'accès</label><input id="stock-code-in" type="text" class="mono" autocapitalize="characters" spellcheck="false" required></div>'+
+     '<button id="stock-unlock-btn" class="btn primary sm" type="submit">Déverrouiller</button></form></div></div>';
+  }
   var tab=S.tab.stock||'lvl',pairs=0,val=0,rup=0,low=0;
   VARIANTS.forEach(function(v){var q=stockOf(v.sku);pairs+=q;val+=q*v.model.cost;if(q<=0)rup++;else if(q<=v.model.min)low++});
   var brands=[];MODELS.forEach(function(m){if(brands.indexOf(m.brand)<0)brands.push(m.brand)});
@@ -1046,6 +1071,16 @@ function renderTeacher(){
    '<div class="tabs">'+tabs+'</div>'+(T.msg?'<div class="msg info">'+T.msg+'</div>':'')+body+'</div>';
   if(T.tab==='send'){fillColors();renderTLines()}
 }
+function classCodeOf(clsName){
+  var s=((S.T&&S.T.students)||[]).filter(function(x){return x.classe===clsName})[0];
+  return s?(s.classeCode||clsName):clsName;
+}
+function loadClassCode(cls){
+  S.T.cls=cls;
+  if(!cls){S.T.stockCode=null;S.T.stockCodeCls='';renderTeacher();return}
+  S.T.stockCode=null;S.T.stockCodeCls=cls;renderTeacher();
+  Backend.getClassCode(classCodeOf(cls)).then(function(v){if(S.T.stockCodeCls===cls)S.T.stockCode=v||'';renderTeacher()},function(){if(S.T.stockCodeCls===cls)S.T.stockCode='';renderTeacher()});
+}
 function tList(st,classes){
   var T=S.T;
   var rows=st.filter(function(s){return !T.cls||s.classe===T.cls}).map(function(s){
@@ -1053,7 +1088,11 @@ function tList(st,classes){
     return '<tr><td>'+esc(s.prenom+(s.nom?' '+s.nom:''))+'</td><td>'+esc(s.classe)+'</td><td class="ref">'+esc(s.matricule)+'</td><td>'+(s.lastSeen?fdt(s.lastSeen):'<span class="muted">jamais</span>')+'</td><td class="r">'+(x.orders||0)+'</td><td class="r">'+(x.prepared||0)+'</td><td class="r">'+(x.unread||0)+'</td><td class="r" style="white-space:nowrap"><button class="btn sm" data-act="open-student" data-uid="'+s.uid+'">Ouvrir la base</button> <button class="btn sm" data-act="reset-one-ask" data-uid="'+s.uid+'">Réinitialiser</button></td></tr>';
   }).join('');
   var clsBtns=T.cls?'<button class="btn sm" data-act="send-to-class" data-cls="'+esc(T.cls)+'">Envoyer une commande à cette classe</button><button class="btn sm danger" data-act="reset-class-ask" data-cls="'+esc(T.cls)+'">Réinitialiser la classe</button><button class="btn sm danger" data-act="delete-class-ask" data-cls="'+esc(T.cls)+'">Supprimer la classe</button>':'';
+  var codeLoading=T.cls&&T.stockCode==null;
+  var stockCodeRow=T.cls?'<div class="panel-b" style="padding-top:0;padding-bottom:16px;border-top:1px solid var(--line)"><form data-act="set-stock-code" data-cls="'+esc(T.cls)+'" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><label class="small muted" for="stock-code-t">Code d\'accès à l\'onglet Stock pour '+esc(T.cls)+'</label><input id="stock-code-t" type="text" class="mono" style="width:150px" placeholder="ex. STOCK24" value="'+esc(codeLoading?'':T.stockCode)+'"'+(codeLoading?' disabled':'')+'><button class="btn sm" type="submit"'+(codeLoading?' disabled':'')+'>Enregistrer</button></form>'+
+   '<p class="small muted" style="margin-top:8px">Sans code (champ vide), les élèves de cette classe n\'ont pas accès à l\'onglet Stock : ils doivent utiliser la console (<span class="mono">.getstock REF</span>) pour connaître un niveau précis.</p></div>':'';
   return '<div class="panel"><div class="panel-h"><div class="field" style="min-width:220px"><label for="t-cls">Classe</label><select id="t-cls" data-tcls="1"><option value="">Toutes les classes</option>'+classes.map(function(c){return '<option'+(T.cls===c?' selected':'')+'>'+esc(c)+'</option>'}).join('')+'</select></div><div style="display:flex;gap:8px;flex-wrap:wrap">'+clsBtns+'</div></div>'+
+   stockCodeRow+
    (T.loading?'<div class="panel-b muted">Chargement…</div>':(rows?'<div class="scroll"><table class="t"><thead><tr><th>Élève</th><th>Classe</th><th>Matricule</th><th>Dernière connexion</th><th class="r">Commandes enregistrées</th><th class="r">Préparées</th><th class="r">Non lus</th><th></th></tr></thead><tbody>'+rows+'</tbody></table></div>':'<div class="panel-b muted">Aucun élève pour le moment. Crée une classe dans l\'onglet « Créer une classe ».</div>'))+'</div>';
 }
 function tCreate(){
@@ -1146,6 +1185,23 @@ async function createClass(){
   renderTeacher();
 }
 async function resetStudent(s){var db=newDB(s);await Backend.putState(s.uid,s.org||'p42',JSON.stringify(db),Date.now(),statsOf(db))}
+function saveStockCode(cls){
+  var input=$('#stock-code-t');if(!input)return;
+  var code=input.value.trim();
+  Backend.setClassCode(classCodeOf(cls),code).then(function(){
+    S.T.stockCode=code;S.T.msg=code?'Code stock enregistré pour '+esc(cls)+'.':'Code stock supprimé pour '+esc(cls)+' : l\'onglet Stock est verrouillé pour cette classe.';renderTeacher();
+  },function(err){S.T.msg='<span class="err">Enregistrement impossible : '+esc(err.message)+'</span>';renderTeacher()});
+}
+async function tryUnlockStock(){
+  var input=$('#stock-code-in');if(!input)return;
+  var val=input.value.trim();S.stockCodeErr='';
+  var btn=$('#stock-unlock-btn');if(btn){btn.disabled=true;btn.textContent='Vérification…'}
+  try{
+    var real=await Backend.getClassCode(S.user.classeCode||S.user.classe);
+    if(val&&real&&val.toLowerCase()===real.toLowerCase()){S.stockUnlocked=true;S.stockCodeErr='';renderMain()}
+    else{S.stockCodeErr='Code incorrect.';renderMain();var i=$('#stock-code-in');if(i){i.focus();i.select()}}
+  }catch(e){S.stockCodeErr='Vérification impossible : '+e.message;renderMain()}
+}
 function confirmDlg(title,text,label,act,data){
   var attrs=Object.keys(data||{}).map(function(k){return ' data-'+k+'="'+esc(data[k])+'"'}).join('');
   $('#dlg').innerHTML='<div class="overlay"><div class="dialog" role="dialog" aria-label="'+esc(title)+'"><h2>'+esc(title)+'</h2><p>'+text+'</p><div class="acts"><button class="btn" data-act="dlg-close">Annuler</button><button class="btn danger" data-act="'+act+'"'+attrs+'>'+label+'</button></div></div></div>';
@@ -1166,7 +1222,6 @@ document.addEventListener('click',function(e){
    case 'reply-toggle':var f=$('#reply-form');f.hidden=!f.hidden;if(!f.hidden)$('#reply-t').focus();break;
    case 'order-reg':orderReg(parseInt(d.id,10));break;
    case 'order-open':go('order',{no:d.no});break;
-   case 'chk':checkLine(d.sku);break;
    case 'gen-doc':genDoc();break;
    case 'validate':validateBP();break;
    case 'copy-bp':copyBP();break;
@@ -1218,6 +1273,9 @@ document.addEventListener('submit',function(e){
   else if(id==='qcmd'){var i=$('#qin');var v=i.value;i.value='';runCmd(v,'top')}
   else if(id==='ccmd'){var c=$('#cin');var v2=c.value;c.value='';runCmd(v2,'console')}
   else if(id==='reply-form')sendReply();
+  else if(e.target.dataset&&e.target.dataset.act==='verify-stock')verifyStock(e.target.dataset.sku);
+  else if(e.target.dataset&&e.target.dataset.act==='set-stock-code')saveStockCode(e.target.dataset.cls);
+  else if(id==='stock-unlock-form')tryUnlockStock();
 });
 document.addEventListener('input',function(e){
   var f=e.target.dataset&&e.target.dataset.filter;
@@ -1228,7 +1286,7 @@ document.addEventListener('change',function(e){
   if(t.dataset&&t.dataset.qty)setQty(t.dataset.qty,t.value);
   else if(t.dataset&&t.dataset.filter)t.dataset.filter==='cat'?updateCatalog():t.dataset.filter==='stock'?updateStock():updateTiers();
   else if(t.id==='t-m')fillColors();
-  else if(t.dataset&&t.dataset.tcls){S.T.cls=t.value;renderTeacher()}
+  else if(t.dataset&&t.dataset.tcls){loadClassCode(t.value)}
 });
 document.addEventListener('keydown',function(e){
   var t=e.target;
